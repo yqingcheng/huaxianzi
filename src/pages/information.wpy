@@ -1,0 +1,233 @@
+<style lang="scss">
+    .information{
+        font-size: 28rpx;
+        color: #333;
+        padding: 0 20rpx 40rpx 20rpx;
+        /*position: relative;*/
+        .tiimg{
+            width: 200rpx;
+            height: 200rpx;
+            border-radius: 200rpx;
+            margin: 80rpx auto 45rpx auto;
+            z-index: 999;
+            position: relative;
+            display: block;
+        }
+        .name{
+            width: 200rpx;
+            height: 200rpx;
+            border-radius: 200rpx;
+            margin: 0 auto;
+            z-index: 9999;
+            top: -240rpx;
+            position: relative;
+            line-height: 200rpx;
+            text-align: center;
+            display: block;
+            background: rgba(0,0,0,.5);
+            margin-bottom: -200rpx;
+            color: white;
+        }
+        .detai{
+            .detailli{
+                border-bottom: 1px solid #eee;
+                position: relative;
+                display: flex;
+                align-items: center;
+                view:nth-child(1){
+                    padding: 15rpx 0;
+                    flex: 0 0 150rpx;
+                    display: flex;
+                    align-items: center;
+                }
+                view:nth-child(2){
+                    flex: 1 1 100%;
+                    padding: 10rpx 50rpx 10rpx 10rpx;
+                    border-left: 1px solid #eee;
+                    color: #666;
+                    textarea{
+                        width: 100%;
+                        height: 30rpx;
+                    }
+                }
+            }
+        }
+        .footer{
+            width: 100%;
+            height: 85rpx;
+            margin-left: -20rpx;
+            .fabu{
+                width: 94%;
+                height: 85rpx;
+                border-radius: 10rpx;
+                background: #4975e5;
+                color: white;
+                line-height: 85rpx;
+                text-align: center;
+                position: absolute;
+                bottom: 20rpx;
+                margin-left: 3%;
+            }
+        }
+
+    }
+</style>
+<template>
+    <view class="information">
+        <image class="tiimg" src="{{img}}"></image>
+        <view class="name" @tap="toImg">上传头像</view>
+        <view class="detai">
+            <ul>
+                <li class="detailli" wx:for="{{qw}}" wx:key="{{index}}">
+                    <view>{{item.name}}</view>
+
+                    <view>
+                        <picker class="sesa" wx:if="{{item.adds}}" mode="region" bindchange="bindRegionChange" value="{{region}}" custom-item="{{customItem}}">
+                            <view class="picker">
+                                {{region[0]}} {{region[1]}} {{region[2]}}
+                                <icon1 class="ico" type="zhankai1" color="#999" fontSize="45"></icon1>
+                            </view>
+                        </picker>
+
+                        <textarea @input="chanbge"
+                                  wx:if="{{!item.adds}}"
+                                  auto-height="true" id=""
+                                  data-index="{{index}}"
+                                  placeholder="{{item.placeholder}}" value="{{item.dt}}" cols="30" rows="10"></textarea>
+                        <!--<input type="text" placeholder="{{item.placeholder}}" value="{{item.dt}}" />-->
+                    </view>
+
+                </li>
+            </ul>
+        </view>
+
+        <view class="footer">
+            <view class="fabu" @tap="addto">
+                {{infoStatus}}
+            </view>
+        </view>
+
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Information extends wepy.page {
+        config = {
+            navigationBarTitleText: '修改个人资料'
+        }
+        components = {
+            icon1: Icon
+        }
+        data = {
+            region: ['广东省', '广州市', '海珠区'],
+            customItem: '全部',
+            infoStatus: '提交',
+            qw: [
+                {
+                    name: '姓名',
+                    dt: ''
+                },{
+                    name: '联系方式',
+                    dt: ''
+                },{
+                    name: '所在省/市',
+                    dt: '',
+                    adds: 1
+                },{
+                    name: '详细地址',
+                    dt: '',
+                    placeholder: '请输入详细地址信息，如道路、门牌号、小区楼栋号、单元室等'
+                }
+            ],
+            nickname: '',
+            userphone: '',
+            useraddress: '',
+            img: ''
+        }
+        methods = {
+            chanbge(e) {
+                let index = e.currentTarget.dataset.index
+                if(index == 0) {
+                    this.nickname = e.detail.value
+                }if(index == 1) {
+                    this.userphone = e.detail.value
+                }if(index == 3) {
+                    this.useraddress = e.detail.value
+                }
+                this.$apply()
+            },
+            toImg() {
+                wx.chooseImage({
+                    success: (res) => {
+                        let tempFilePaths = res.tempFilePaths[0]
+                        wx.uploadFile({
+                            url: `${this.api_host}/restapi/userinfo/uploads`, //仅为示例，非真实的接口地址
+                            filePath: tempFilePaths,
+                            name: 'file',
+                            formData:{},
+                            success: (res) =>{
+                                let url = JSON.parse(res.data).data.file.url
+                                this.img = `${this.img_host}${url}`
+                                this.$apply()
+                            }
+                        })
+                        this.$apply()
+                    }
+                })
+            },
+            addto() {
+//                let str = (this.region[0] || '')+(this.region[1] || '')+(this.region[2] || '')
+//                    console.log(str.replace(/(.*)[,，]$/))
+//                console.log(str)
+                    wepy.request({
+                        url: `${this.api_host}/restapi/userinfo/create`,
+                        method: 'post',
+                        data: {
+                            openid: wx.getStorageSync('openid'),
+                            nickname: this.nickname,
+                            touxiang: this.img,
+                            telephone: this.userphone,
+                            city: (this.region[0] || '')+' '+(this.region[1] || '')+' '+(this.region[2] || ''),
+                            address: this.useraddress
+                        },
+                        success: (res) => {
+                            wx.reLaunch({url: 'me'})
+                            this.$apply()
+                        }
+                    })
+            },
+            bindRegionChange(e) {
+                this.region = e.detail.value
+            }
+        }
+        onShareAppMessage() {
+        }
+        onLoad() {
+            getExtJson.call(this)
+                wepy.request({
+                    url: `${this.api_host}/restapi/userinfo`,
+                    method: 'get',
+                    data: {
+                        openid: wx.getStorageSync('openid')
+                    },
+                    success: (res) => {
+                        if(res.data.data.items[0]) {
+                            this.qw[0].dt = res.data.data.items[0].nickname
+                            this.qw[1].dt = res.data.data.items[0].telephone
+                            this.region.length = 1
+                            this.region[0] = res.data.data.items[0].city.replace(/(.*)[,，]$/)
+                            this.qw[3].dt = res.data.data.items[0].address
+                            this.img = `${res.data.data.items[0].touxiang}`
+                            this.$apply()
+                        }
+
+                    }
+                })
+
+        }
+    }
+</script>

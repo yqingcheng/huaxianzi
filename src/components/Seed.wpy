@@ -1,0 +1,163 @@
+
+<style lang="scss">
+    .seed{
+        width: 100%;
+        .block{
+            background: white;
+            border-bottom: 1px solid #eee;
+            padding: 20rpx 0;
+            width: 100%;
+            display: flex;
+            flex-flow: row nowrap;
+            box-sizing: border-box;
+            image{
+                margin-right: 20rpx;
+                flex: 0 0 230rpx;
+                height: 230rpx;
+            }
+            .shop_detail{
+                position: relative;
+                font-size: 28rpx;
+                color: #666;
+                width: 100%;
+                .jian{
+                    border: 1px solid #ccc;
+                    display: inline-block;
+                    margin-right: 20rpx;
+                    width:50rpx;
+                    height:37rpx;
+                    text-align:center;
+                    line-height: 32rpx;
+                }
+                .jia{
+                    width: 50rpx;
+                    height: 37rpx;
+                    border: 1px solid #ccc;
+                    margin-left: 20rpx;
+                    display: inline-block;
+                    text-align: center;
+                    line-height: 32rpx;
+                }
+                text{
+                    color: #333;
+                }
+                .zname{
+                    margin-bottom: 20rpx;
+                }
+                .zde{
+                    margin-bottom: 20rpx;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    overflow: hidden;
+                }
+                .status{
+                    position: absolute;
+                    text-align: center;
+                    right: 0;
+                    bottom: 20rpx;
+                    width: 115rpx;
+                    height: 50rpx;
+                    line-height: 50rpx;
+                    border-radius: 10rpx;
+                }
+                .dai{
+                    background: #df0000;
+                    color: white;
+                }
+                .zheng{
+                    background: #ccc;
+                    color: white;
+                }
+                .checkbox{
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                }
+            }
+        }
+    }
+</style>
+
+<template>
+    <view class="seed">
+        <!--<view class="tablist">-->
+            <view class="block"
+                  wx:for="{{myzhongzi}}"
+                  data-status="{{item.status}}"
+                  data-name="{{item.shop_name}}"
+                  @tap="mySeed"
+                  data-id="{{item.shopid}}"
+                  data-gx_id="{{item.id}}"
+                  wx:key="{{index}}">
+
+                <image src="{{item.image}}"></image>
+                <view class="shop_detail">
+                    <view class="zname">
+                        <text>种子名称：</text>{{item.shop_name}}
+                    </view>
+                    <view class="zde">
+                        <text>种子种类：</text>{{item.shop_kind}}
+                    </view>
+                    <view>
+                        <text>数量</text>：
+                        <text wx:if="{{item.os}}" class="jian" @tap="jian" data-id="{{item.shop_id}}">-</text>
+                        <text>{{item.quantity}}</text>
+                        <text wx:if="{{item.os}}" @tap="jia" class="jia" data-id="{{item.shop_id}}">+</text>
+                        包
+                    </view>
+                    <view wx:if="{{item.status}}" class="status {{item.status == '正常' ? 'zheng' : 'dai'}}">
+                        {{item.status}}
+                    </view>
+                    <checkbox-group wx:if="{{item.os}}"
+                                    data-id="{{item.shop_id}}"
+                                    data-quantity="{{item.quantity}}"
+                                    data-shop_kind="{{item.shop_kind}}"
+                                    data-shop_name="{{item.shop_name}}"
+                                    data-deadline="{{item.deadline}}"
+                                    @change="checkboxChange"
+                                    data-image="{{item.image}}"
+                                    class="checkbox">
+                        <!--<label class="checkbox">-->
+                            <checkbox value="{{item.id}}" checked="{{item.checked}}"/>
+                        <!--</label>-->
+                    </checkbox-group>
+                </view>
+            </view>
+        <!--</view>-->
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+
+    export default class Seed extends wepy.component{
+
+        data = {
+
+        }
+        components = {
+
+        }
+        props = {
+            myzhongzi: {}
+        }
+        methods = {
+            mySeed(e) {
+                this.$emit('mySeed', e)
+            },
+            checkboxChange(e) {
+                this.$emit('checkboxChange', e)
+            },
+            jia(e) {
+                this.$emit('jia', e)
+            },
+            jian(e) {
+                this.$emit('jian', e)
+            },
+        }
+
+    }
+</script>
+
+

@@ -1,0 +1,107 @@
+
+<style lang="scss">
+    .details{
+        font-size: 30rpx;
+        color: #333;
+        image{
+            width: 585rpx;
+            margin: 30rpx auto 0 auto;
+            display: block;
+            border-radius: 15rpx;
+        }
+        .detra{
+            view{
+                padding: 0 20rpx;
+                border-bottom: 1px solid #eee;
+                line-height: 88rpx;
+            }
+        }
+        .footer{
+            position: relative;
+            margin-top: 30rpx;
+            height: 100rpx;
+            border-top: 1px solid #eee;
+            background: white;
+            z-index: 99;
+            width: 100%;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            view:nth-child(2){
+                width: 205rpx;
+                height: 65rpx;
+                background: #4975e5;
+                color: white;
+                line-height: 65rpx;
+                text-align: center;
+                border-radius: 10rpx;
+                position: absolute;
+                right: 20rpx;
+            }
+            view:nth-child(1){
+                position: absolute;
+                right: 265rpx;
+            }
+        }
+    }
+</style>
+
+<template>
+    <view class="details">
+        <image src="{{exchange.image}}" mode="widthFix"></image>
+        <view class="detra">
+            <view>种子名称：{{exchange.seedname}}</view>
+            <view>种子种类：{{exchange.seedkind}}</view>
+            <view>送出数量：{{exchange.quantity}}包</view>
+            <view>有效期限：{{exchange.deadline}}</view>
+            <view>详细描述：{{exchange.depict}}</view>
+        </view>
+        <view class="footer">
+            <view>联系人：{{exchange.username}}</view>
+            <view @tap="phone" data-phone="{{exchange.tele}}">呼叫</view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Details extends wepy.page{
+        data= {
+            exchange: {}
+        }
+        methods = {
+            /*
+            * 呼叫
+            * */
+            phone(e) {
+                wx.makePhoneCall({
+                    phoneNumber: e.currentTarget.dataset.phone
+                })
+            }
+        }
+        components = {
+
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            wx.setNavigationBarTitle({
+                title: option.name
+            })
+            wepy.request({
+                url: `${this.api_host}/restapi/exchange/view`,
+                data: {
+                    id: option.id
+                },
+                success: (res) => {
+                    this.exchange = res.data.data
+                    this.$apply()
+                }
+            })
+            this.$apply()
+        }
+    }
+</script>

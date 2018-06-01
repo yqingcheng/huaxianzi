@@ -1,0 +1,154 @@
+<style lang="scss">
+    .returnseed{
+        font-size: 28rpx;
+        color: #333;
+        /*box-sizing: border-box;*/
+        .seeds{
+            padding: 20rpx 20rpx 0 20rpx;
+            image{
+                width: 100%;
+                margin-right: 20rpx;
+            }
+            .see{
+                flex: 1 1 100%;
+                display: flex;
+                flex-direction: column;
+                view:nth-child(1){
+                    margin-bottom: 20rpx;
+                }
+            }
+        }
+        .blo{
+            padding: 0 20rpx 0 20rpx;
+            margin-top: 57rpx;
+        }
+        .lis{
+            line-height: 80rpx;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        .fabu{
+            width: 94%;
+            height: 85rpx;
+            border-radius: 10rpx;
+            background: #4975e5;
+            color: white;
+            line-height: 85rpx;
+            text-align: center;
+            margin: 30rpx 0 20rpx 0;
+            margin-left: 3%;
+        }
+    }
+</style>
+<template>
+    <view class="returnseed">
+        <view class="seeds">
+            <image src="{{image}}" mode="widthFix"></image>
+            <!--<view class="see">-->
+                <!--<view>种子名称：{{order_name}}</view>-->
+                <!--<view>种子种类：{{plantname}}</view>-->
+            <!--</view>-->
+        </view>
+        <view class="blo">
+            <view class="lis">
+                <text>种子名称：</text>
+                <text>{{order_name}}</text>
+            </view>
+            <view class="lis">
+                <text>种子种类：</text>
+                <text>{{plantname}}</text>
+            </view>
+            <view class="lis">
+                <text>借种子时间：</text>
+                <text>{{addtime}}</text>
+            </view>
+            <view class="lis">
+                <text>数量：</text>
+                <text>{{quantity}}</text>
+            </view>
+            <view class="lis">
+                <text>剩余归还时间：</text>
+                <text>{{deadline}}</text>
+            </view>
+        </view>
+        <view class="fabu" @tap="release">
+            确认归还
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Returnseed extends wepy.page {
+        config = {
+            navigationBarTitleText: '还种子'
+        }
+        components = {
+
+        }
+        methods = {
+            /*
+            * 还种子
+            * */
+            release() {
+                if(this.$parent.globalData.userInfo) {
+                    wepy.request({
+                        url: `${this.api_host}/restapi/return-seek/create`,
+                        method: 'post',
+                        data: {
+                            seekname: this.order_name,
+                            count: this.quantity,
+                            seek_id: this.id,
+                            openid: wx.getStorageSync('openid')
+                        },
+                        success: (res) => {
+                            console.log(res,10)
+                            wx.reLaunch({url: `me`})
+                            this.$apply()
+                        }
+                    })
+                } else {
+                    wx.showToast({
+                        title: '您还没有登录',
+                        image: '../images/fails.png',
+                        duration: 2000
+                    })
+                }
+            }
+        }
+        data = {
+            order_name: '',
+            plantname: '',
+            addtime: '',
+            quantity: '',
+            deadline: '',
+            image: '',
+            id: ''
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            wepy.request({
+                url: `${this.api_host}/restapi/user-seed/views`,
+                data: {
+                    gx_id: option.gx_id
+                },
+                success: (res) => {
+                    console.log(res)
+                    this.order_name = res.data.data.order_name
+                    this.plantname = res.data.data.plantname
+                    this.addtime = res.data.data.addtime
+                    this.quantity = res.data.data.quantity
+                    this.deadline = res.data.data.deadline
+                    this.id = res.data.data.id
+                    this.image = `${this.img_host}${res.data.data.image}`
+                    this.$apply()
+                }
+            })
+        }
+    }
+</script>

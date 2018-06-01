@@ -1,0 +1,95 @@
+<style lang="scss">
+    .success{
+        font-size: 30rpx;
+        .succ{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 200rpx 0 150rpx 0;
+            color: #ff5555;
+        }
+        .butt{
+            display: flex;
+            justify-content: space-between;
+            padding: 0 38rpx;
+            view{
+                width: 327rpx;
+                height: 93rpx;
+                text-align: center;
+                line-height: 93rpx;
+                border-radius: 15rpx;
+                color: white;
+            }
+            view:nth-child(1){
+                background: #db1010;
+            }
+            view:nth-child(2){
+                 background: #108cdb;
+            }
+        }
+    }
+</style>
+<template>
+    <view class="success">
+        <view class="succ">
+            <icon type="chenggong" color="#ff5555" fontSize="150"></icon>
+            提交成功
+        </view>
+
+        <view class="butt">
+            <view @tap="nextSeeds">{{text}}</view>
+            <view @tap="order">{{text1}}</view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+
+    export default class Success extends wepy.page {
+        config = {
+            navigationBarTitleText: '成功'
+        }
+        components = {
+            icon: Icon
+        }
+        methods = {
+            /*
+            * 继续借
+            * */
+            nextSeeds() {
+                wx.reLaunch({url: `index`})
+//                if(this.text == '返回首页') {
+//
+//                    wx.reLaunch({url: `index`})
+//                } else {
+//                    wx.navigateTo({url: `borrowSeeds`})
+//                }
+            },
+            /*
+            * 订单
+            * */
+            order() {
+                if(this.text1 == '返回活动') {
+                    wx.navigateTo({url: `activity`})
+                } else {
+                    wx.reLaunch({url: `me?num=1`})
+                }
+            }
+        }
+        data = {
+            text: '返回首页',
+            text1: '我的种子'
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            if(option.status == 'activity') {
+                this.text = '返回首页'
+                this.text1 = '返回活动'
+            }
+            this.$apply()
+        }
+    }
+</script>

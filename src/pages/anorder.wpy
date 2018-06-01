@@ -1,0 +1,238 @@
+
+<style lang="scss">
+    page{
+        height: 100%;
+    }
+    .anorder{
+        font-size: 30rpx;
+        color: #333;
+        position: relative;
+        min-height: 100%;
+        .consignee{
+            width: 100%;
+            min-height: 100rpx;
+            display: flex;
+            align-items: center;
+            border: 1px solid #eee;
+            .name{
+                color: #666;
+            }
+            view:nth-child(1){
+                margin-left: 20rpx;
+                flex: 0 0 200rpx;
+                position: relative;
+                .ic{
+                    position: absolute;
+                    top:5rpx;
+                }
+                view{
+                    margin-left: 40rpx;
+                }
+            }
+        }
+        .de{
+            border-bottom: 15rpx solid #eee;
+            border-top: none;
+        }
+        .seeds{
+            padding: 10rpx 20rpx 20rpx 20rpx;
+            width: 100%;
+            box-sizing: border-box;
+            image{
+                width: 100%;
+                border-radius: 15rpx;
+                margin: 20rpx 0;
+            }
+            .detail{
+                color: #666;
+                /*padding: 10rpx 10rpx 50rpx 10rpx;*/
+            }
+            .jian{
+                border: 1px solid #ccc;
+                display: inline-block;
+                margin-right: 20rpx;
+                width:50rpx;
+                height:37rpx;
+                text-align:center;
+                line-height: 32rpx;
+            }
+            .jia{
+                width:50rpx;
+                height:37rpx;
+                border: 1px solid #ccc;
+                margin-left: 20rpx;
+                display: inline-block;
+                text-align:center;
+                line-height: 32rpx;
+            }
+        }
+        .butt{
+
+            margin: 50rpx 0 30rpx 0;
+            view{
+                width: 95%;margin: 0 auto;
+                margin-top: 30rpx;
+                height: 85rpx;
+                color: white;
+                text-align: center;
+                border-radius: 15rpx;
+                background: #4975e5;
+                line-height: 85rpx;
+            }
+        }
+    }
+</style>
+
+<template>
+    <view class="anorder">
+        <view class="consignee" @tap="chooseAddress">
+            <view >
+                <icon1 class="geren"  type="icon--" fontSize="35" color="#999"></icon1>
+                <view>收货人</view>
+            </view>
+            <view class="name">{{userName}}</view>
+        </view><view class="consignee de">
+            <view>
+                <icon2 class="dizhi"  type="icon--" fontSize="35" color="#999"></icon2>
+                <view>收货地址</view>
+            </view>
+            <view class="name">{{address}}</view>
+        </view>
+        <view class="seeds" wx:for="{{orderArr}}" wx:key="{{index}}">
+            <image src="{{item.image}}" mode="widthFix"></image>
+            <view>
+                种子名称：<text class="detail">{{item.order_name}}</text>
+            </view>
+
+            <view>
+                种子种类：<text class="detail">{{item.plantname}}</text>
+            </view>
+
+            <view>
+                数量：<text class="jian" @tap="jian" data-id="{{item.shopid}}">-</text>
+                <text class="detail">{{item.quantity}}</text>
+                <text @tap="jia" class="jia" data-id="{{item.shopid}}">+</text>
+
+            </view>
+            <view style="color: #888; font-size: 24rpx; margin-top: 20rpx">
+                (*如需购买两包不同的种子，请加入购物车购买)
+            </view>
+        </view>
+        <view class="butt">
+            <view @tap="buyseed">提交</view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Anorder extends wepy.page{
+        config = {
+            navigationBarTitleText: '借种子'
+        }
+
+        data= {
+            orderArr: [],
+            name:'',
+            userName: '',
+            address: '',
+            telephone: '',
+            userphone:'',
+            usercity: '',
+            detail: ' kkadfk我怕上岛咖啡 咖啡 了埃kadfk我怕上岛咖上岛咖啡 了埃ka电风扇'
+        }
+        methods = {
+            jian(e) {
+                this.orderArr.forEach( item => {
+                    if(item.shopid == e.currentTarget.dataset.id) {
+                        if(item.quantity !== 0) {
+                            item.quantity --
+                        }
+                    }
+                })
+            },
+            jia(e) {
+                this.orderArr.forEach( item => {
+                    if(item.shopid == e.currentTarget.dataset.id) {
+                            item.quantity ++
+                    }
+                })
+            },
+            buyseed() {
+                if(this.$parent.globalData.userInfo) {
+                    let num = 0
+                    this.orderArr.forEach( item => {
+                        num += item.quantity
+                    })
+                    if(num > 2) {
+                        wx.showToast({
+                            title: '一次最多买两包',
+                            image: '../images/fails.png',
+                            duration: 2000
+                        })
+                    } else if(num < 2){
+                        wx.showToast({
+                            title: '一次最少买两包',
+                            image: '../images/fails.png',
+                            duration: 2000
+                        })
+                    } else {
+                        wepy.request({
+                            url: `${this.api_host}/restapi/order/create`,
+                            method: 'post',
+                            data: {
+                                items: this.orderArr,
+                                username: this.userName,
+                                telephone: this.userphone,
+                                open_id: wx.getStorageSync('openid'),
+//                            province: '',
+                                city: this.usercity,
+                                address: this.address,
+                                pick: '快递',
+                                type: 1
+                            },
+                            success: (res) => {
+                                console.log(res.data.data)
+                                if(res.data.data) {
+                                    wx.showToast({
+                                        title: res.data.data.data,
+                                        image: '../images/fails.png',
+                                        duration: 2000
+                                    })
+                                } else {
+                                    wx.navigateTo({url: `success`})
+                                }
+                                this.$apply()
+                            }
+                        })
+                    }
+
+                } else {
+                    wx.showToast({
+                        title: '您还没有登录',
+                        image: '../images/fails.png',
+                        duration: 2000
+                    })
+                }
+            }
+        }
+        components = {
+            icon1: Icon,
+            icon2: Icon
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            this.orderArr = JSON.parse(option.orderArr)
+            this.userName = option.username
+            this.address = option.useraddress
+            this.userphone = option.userphone
+            this.usercity = option.usercity
+            this.$apply()
+        }
+    }
+</script>

@@ -1,0 +1,238 @@
+
+<style lang="scss">
+    page{
+        height: 100%;
+    }
+    .distributionmode{
+        font-size: 30rpx;
+        color: #333;
+        position: relative;
+        min-height: 100%;
+        .choose{
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #eee;
+            view{
+                text-align: center;
+                height: 99rpx;
+                flex: 1;
+                line-height: 99rpx;
+            }
+            .yes{
+                border-bottom: 2px solid #4d99e7;
+            }
+        }
+        .seed{
+            padding: 40rpx 20rpx 0 20rpx;
+            border-bottom: 15rpx solid #eee;
+            image{
+                width: 100%;
+                border-radius: 15rpx;
+            }
+            view{
+                line-height: 98rpx;
+                text-align: center;
+                width: 100%;
+            }
+        }
+        .detai{
+            padding: 0 20rpx;
+            font-size: 28rpx;
+            .detailli{
+                border-bottom: 1px solid #eee;
+                position: relative;
+                display: flex;
+                align-items: center;
+                view:nth-child(1){
+                    padding: 35rpx 0;
+                    flex: 0 0 230rpx;
+                    display: flex;
+                    align-items: center;
+                }
+                view:nth-child(2){
+                    flex: 1 1 100%;
+                    padding: 30rpx 50rpx 30rpx 10rpx;
+                    border-left: 1px solid #eee;
+                    color: #666;
+                    textarea{
+                        width: 100%;
+                        height: 30rpx;
+                    }
+                }
+            }
+        }
+        .butt{
+            margin: 50rpx 0 30rpx 0;
+            view{
+                width: 95%;margin: 0 auto;
+                margin-top: 30rpx;
+                height: 85rpx;
+                color: white;
+                text-align: center;
+                border-radius: 15rpx;
+                background: #4975e5;
+                line-height: 85rpx;
+            }
+        }
+    }
+</style>
+
+<template>
+    <view class="distributionmode">
+
+        <view class="choose">
+            <view class="{{status ? 'yes' : ''}}" @tap="kuaidi">快递</view>
+            <view class="{{!status ? 'yes' : ''}}" @tap="ziqu">自取</view>
+        </view>
+        <view class="seed">
+            <image src="{{orderArr[0].image}}" mode="widthFix"></image>
+            <view>{{orderArr[0].order_name}}</view>
+            <image wx:if="{{orderArr[1]}}" src="{{orderArr[1].image}}"></image>
+            <view wx:if="{{orderArr[1]}}">{{orderArr[1].order_name}}</view>
+        </view>
+        <view class="detai">
+            <ul>
+                <li class="detailli" wx:for="{{qw}}" wx:key="{{index}}">
+                    <view>{{item.name}}</view>
+
+                    <view>
+                        <picker class="sesa" wx:if="{{item.adds}}" mode="region" bindchange="bindRegionChange" value="{{region}}" custom-item="{{customItem}}">
+                            <view class="picker">
+                                {{region[0]}} {{region[1]}} {{region[2]}}
+                                <icon1 class="ico" type="zhankai1" color="#999" fontSize="45"></icon1>
+                            </view>
+                        </picker>
+                        <textarea @input="change"
+                                  data-index="{{index}}"
+                                  wx:if="{{!item.adds}}"
+                                  auto-height="true" id=""
+                                  placeholder="{{item.placeholder}}"
+                                  value="{{item.dt}}" cols="30" rows="10"></textarea>
+                        <!--<input type="text" placeholder="{{item.placeholder}}" value="{{item.dt}}" />-->
+                    </view>
+                </li>
+            </ul>
+        </view>
+
+        <view class="butt">
+            <view @tap="buyseed">提交</view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Distributionmode extends wepy.page{
+        config = {
+            navigationBarTitleText: '选择配送方式'
+        }
+        data= {
+            orderArr: [],
+            region: ['广东省', '广州市', '海珠区'],
+            customItem: '全部',
+            status: true,
+            qw: [
+                {
+                    name: '姓名',
+                    dt: ''
+                },{
+                    name: '联系方式',
+                    dt: ''
+                },{
+                    name: '所在省/市',
+                    adds: 1
+                },{
+                    name: '详细地址',
+                    dt: '',
+                    placeholder: '请输入详细地址信息，如道路、门牌号、小区楼栋号、单元室等'
+                }
+            ]
+        }
+        components = {
+            icon1: Icon
+        }
+        methods = {
+            change(e) {
+                let index = e.currentTarget.dataset.index
+
+                if(index == 0) {
+                    this.qw[0].dt = e.detail.value
+                }if(index == 1) {
+                    this.qw[1].dt = e.detail.value
+                }if(index == 3) {
+                    this.qw[3].dt = e.detail.value
+                }
+                this.$apply()
+            },
+            bindRegionChange(e) {
+                this.region = e.detail.value
+                this.$apply()
+            },
+            kuaidi() {
+                this.status = true
+            },
+            ziqu() {
+                this.status = false
+            },
+            buyseed() {
+                if(this.status) {
+                    if(this.qw[0].dt , this.qw[1].dt , this.region , this.qw[3].dt) {
+                        wx.navigateTo({url: `anorder?orderArr=${JSON.stringify(this.orderArr)}&usercity=${this.region}&userphone=${this.qw[1].dt}&username=${this.qw[0].dt}&useraddress=${this.qw[3].dt}`})
+                    } else {
+                        wx.showToast({
+                            title: '请填写完整信息',
+                            image: '../images/fails.png',
+                            duration: 2000
+                        })
+                    }
+                } else {
+                    if(this.qw[0].dt , this.qw[1].dt , this.region , this.qw[3].dt) {
+                        wx.navigateTo({url: `selfextraction?orderArr=${JSON.stringify(this.orderArr)}&usercity=${this.region}&userphone=${this.qw[1].dt}&username=${this.qw[0].dt}&useraddress=${this.qw[3].dt}`})
+                    } else {
+                        wx.showToast({
+                            title: '请填写完整信息',
+                            image: '../images/fails.png',
+                            duration: 2000
+                        })
+                    }
+
+                }
+            }
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            this.orderArr = JSON.parse(option.orderArr)
+            if(this.$parent.globalData.userInfo) {
+                wepy.request({
+                    url: `${this.api_host}/restapi/userinfo`,
+                    method: 'get',
+                    data: {
+                        openid: wx.getStorageSync('openid')
+                    },
+                    success: (res) => {
+                        if(res.data.data.items[0]) {
+                            this.qw[0].dt = res.data.data.items[0].nickname
+                            this.qw[1].dt = res.data.data.items[0].telephone
+                            this.region.length = 1
+                            this.region[0] = res.data.data.items[0].city.replace(/(.*)[,，]$/)
+                            this.qw[3].dt = res.data.data.items[0].address
+                            this.$apply()
+                        }
+
+                    }
+                })
+            } else {
+                wx.showToast({
+                    title: '您还没有登录',
+                    image: '../images/fails.png',
+                    duration: 2000
+                })
+            }
+        }
+    }
+</script>

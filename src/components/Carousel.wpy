@@ -1,0 +1,180 @@
+
+<style lang="scss">
+
+    .carousel_wrap{
+
+        width: 100%;
+        height: 100%;
+        position: relative;
+        swiper{
+            .block {
+                width: 100%;
+                height: 100%;
+            }
+            position: relative;
+        }
+
+       .slide_image{
+            width: 100%;
+            height: 100%;
+        }
+        .mask{
+            width: 100%;
+            box-sizing: border-box;
+            position: absolute;
+            left: 0; bottom: 0;
+        }
+
+        .dots_cont{
+            font-size: 0;
+            text-align: right;
+            line-height: 84rpx;
+        }
+
+        .dots_item{
+            width: 20rpx;
+            height: 20rpx;
+            border-radius: 50%;
+            margin: 0 6rpx;
+            background: rgba(0, 0, 0, .5);
+            display: inline-block;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+        .dots_active{
+            width: 20rpx;
+            height: 20rpx;
+        }
+
+        .dots_wrap_left{
+            position: absolute;
+            left: 0; bottom: 0;
+            margin-left: 30rpx;
+        }
+
+        .dots_wrap_right{
+            position: absolute;
+            right: 0; bottom: 0;
+            margin-right: 30rpx;
+        }
+
+        .dots_wrap_center{
+            position: absolute;
+            left: 50%; bottom: 0;
+            transform: translateX(-50%)
+        }
+
+    }
+
+</style>
+
+<template>
+    
+    <!-- 
+        调用时传入配置对象
+            imgUrls 类型数组 存放图片地址
+            autoplay 类型bol 默认true
+            interval 自动切换时间间隔 默认2000
+            duration 运动时间 默认 500
+            loop 循环滚动 默认true
+            dots 指示点 默认true
+            dotsColor 指示点颜色
+            dotsActiveColor 当前指点颜色
+            mode 图片裁切方式
+     -->
+    <view class="carousel_wrap" >
+        <swiper 
+            class="carousel_wrap"
+            indicator-dots="{{ false }}" 
+            autoplay="{{carouselConfig.autoplay}}" 
+            interval="{{carouselConfig.interval}}" 
+            duration="{{carouselConfig.duration}}"
+            circular="{{carouselConfig.loop}}"
+            @change="change"
+        >
+
+            <repeat for="{{carouselConfig.imgUrls}}">
+                <swiper-item>
+                    <view class=".block" >
+
+                        <image 
+                            src="{{ item.image }}"
+                            mode="{{carouselConfig.mode}}" 
+                            class="slide_image"
+                        ></image>
+
+                        <view 
+                            wx:if="{{ carouselConfig.maskStatus }}"
+                            class="mask {{ carouselConfig.maskClass }}" 
+                            style="{{ carouselConfig.maskStyle }}"
+                        >{{ carouselConfig.maskText[index] }}</view>
+
+                    </view>
+                    
+                </swiper-item>
+            </repeat>
+
+        </swiper>
+
+        <view 
+            class="dots_wrap_{{carouselConfig.dotsPosition}}" 
+            wx:if="{{ carouselConfig.dots }}"
+        >
+            <view class="dots_cont" style="width: {{32 * carouselConfig.imgUrls.length}}rpx">
+                <repeat for="{{carouselConfig.imgUrls}}" >
+                    <view 
+                        class="dots_item" 
+                        style="background: {{ carouselConfig.dotsColor }}"
+                    >
+                        <view 
+                            class="dots_active"
+                            style="background: {{ currentDot === index ? carouselConfig.dotsActiveColor : '' }}"
+                        ></view>
+                    </view>
+                </repeat>
+            </view>
+        </view>
+
+    </view>
+
+</template>
+
+<script>
+
+    import wepy from 'wepy'
+
+    export default class Carousel extends wepy.component{
+        data = {
+            currentDot: 0,
+            carousel: null
+        }
+        props = {
+            carouselConfig: {
+                type: Object,
+                coerce: function (res){
+                    let result = typeof res.dotsPosition == 'undefined' || res.dotsPosition.indexOf('left') < 0 && res.dotsPosition.indexOf('center') < 0 && res.dotsPosition.indexOf('right') < 0
+                    if(result) res.dotsPosition = 'center'
+                    if(!res.mode) res.mode = ''
+                    if(typeof res.dots !== 'boolean') res.dots = true
+                    if(typeof res.loop !== 'boolean') res.loop = true
+                    if(typeof res.autoplay !== 'boolean') res.autoplay = true
+                    if(!res.interval) res.interval = 3000
+                    if(!res.duration) res.duration = 1000
+                    return res
+                },
+                default: {}
+            }
+        }
+        methods = {
+            change(e){
+                this.currentDot = e.detail.current
+                this.$apply()
+            }
+        }
+        onLoad(){
+            
+        }
+
+    }
+
+</script>

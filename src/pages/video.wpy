@@ -1,0 +1,124 @@
+<style lang="scss">
+    .video{
+        padding: 0 20rpx 20rpx 20rpx;
+        border-top: 1px solid #eee;
+        color: #666;
+        font-size: 28rpx;
+        .sse{
+            display: flex;
+            flex-flow: row wrap;
+            line-height: 40rpx;
+            justify-content: space-between;
+            .block_view{
+                margin-top: 30rpx;
+                flex: 0 1 48.8%;
+                position: relative;
+                height: 510rpx;
+                /*.con_view{*/
+                    /*z-index: 9;*/
+                    /*width: 100%;*/
+                    /*position: absolute;*/
+                    /*height: 100%;*/
+                /*}*/
+                /*.ceng{*/
+                    /*background: pink;*/
+                    /*z-index: 99;*/
+                    /*width: 100%;*/
+                    /*position: absolute;*/
+                    /*height: 100%;*/
+                /*}*/
+                text{
+                    color: #333;
+                }
+                image{
+                    width: 100%;
+                    height: 345rpx;
+                    position: relative;
+                    z-index: 1;
+                }
+                .name{
+                    overflow: hidden;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    word-break: break-all;
+                }
+                .detail{
+                    overflow: hidden;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    word-break: break-all;
+                }
+            }
+        }
+    }
+</style>
+<template>
+    <view class="video">
+        <view class="sse">
+            <repeat for="{{video}}" key="{{index}}">
+                <view class="block_view" @tap="videoDetails"
+                      data-video_details="{{item.video_details}}"
+                      data-video="{{item.video}}"
+                      data-img="{{item.image}}"
+                      data-name="{{item.video_name}}">
+                    <!--<cover-view class="ceng" @tap="videoDetails"-->
+                          <!--data-video_details="{{item.video_details}}"-->
+                          <!--data-video="{{item.video}}"-->
+                          <!--data-name="{{item.video_name}}"></cover-view>-->
+                    <!--<view class="con_view">-->
+                        <!--<video id="myVideo"-->
+                               <!--src="{{item.video}}"-->
+                               <!--initial-time="1"-->
+                        <!--&gt;</video>-->
+                    <image src="{{item.image}} "></image>
+                        <view class="name"><text>视频名称：</text>{{item.video_name}}</view>
+                        <view class="detail"><text>视频简介：</text>{{item.video_details}}</view>
+                    <!--</view>-->
+
+                </view>
+            </repeat>
+
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Video extends wepy.page {
+        config = {
+            navigationBarTitleText: '视频'
+        }
+        components = {
+
+        }
+        data = {
+            video: []
+        }
+        methods = {
+            videoDetails(e) {
+                wx.navigateTo({url: `videoDetails?img=${e.currentTarget.dataset.img}&video=${e.currentTarget.dataset.video}&name=${e.currentTarget.dataset.name}&video_details=${e.currentTarget.dataset.video_details}`})
+            }
+        }
+        onShareAppMessage() {
+        }
+        onLoad() {
+            getExtJson.call(this)
+            wepy.request({
+                url: `${this.api_host}/restapi/video`,
+                data: {},
+                success: (res) => {
+                    res.data.data.items.forEach(item => {
+                        item.image = `${this.img_host}${item.image}`
+                        item.video = `${this.img_host}${item.video}`
+                    })
+                    this.video = res.data.data.items
+                    this.$apply()
+                }
+            })
+        }
+    }
+</script>

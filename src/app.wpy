@@ -1,0 +1,160 @@
+<style lang="scss">
+
+</style>
+
+<script>
+    import wepy from 'wepy'
+    import 'wepy-async-function'
+    import getExtJson from './mixins/getExtJson'
+
+
+    export default class extends wepy.app {
+        config = {
+            pages: [
+                'pages/index',
+                'pages/me',
+                'pages/find',
+                'pages/video',
+                'pages/release',
+                'pages/give',
+                'pages/details',
+                'pages/add',
+                'pages/seeddetails',
+                'pages/returnseed',
+                'pages/information',
+                'pages/shopCar',
+                'pages/borrowSeeds',
+                'pages/seedsclass',
+                'pages/anorder',
+                'pages/success',
+                'pages/activity',
+                'pages/activitydetails',
+                'pages/participate',
+                'pages/videoDetails',
+                'pages/distributionmode',
+                'pages/selfextraction',
+                'pages/yuanyi',
+                'pages/jiludetail',
+                'pages/webView'
+            ],
+            window: {
+                backgroundTextStyle: 'light',
+                navigationBarBackgroundColor: '#fff',
+                navigationBarTitleText: '花仙子',
+                navigationBarTextStyle: 'black'
+            },
+            "tabBar": {
+                "color": "#999",
+                "selectedColor": "#17cb30",
+                "backgroundColor": "#fff",
+                "borderStyle": "",
+                "list": [
+                    {
+                        "pagePath": "pages/index",
+                        "text": "首页",
+                        "iconPath": "./images/home.png",
+                        "selectedIconPath": "./images/home1.png"
+                    },
+                    {
+                        "pagePath": "pages/video",
+                        "text": "视频",
+                        "iconPath": "./images/video.png",
+                        "selectedIconPath": "./images/video1.png"
+                    },
+                    {
+                        "pagePath": "pages/release",
+                        "text": "发布",
+                        "iconPath": "./images/add.png",
+                        "selectedIconPath": "./images/add.png"
+                    },
+                    {
+                        "pagePath": "pages/find",
+                        "text": "发现",
+                        "iconPath": "./images/find.png",
+                        "selectedIconPath": "./images/find1.png"
+                    },
+                    {
+                        "pagePath": "pages/me",
+                        "text": "个人中心",
+                        "iconPath": "./images/me.png",
+                        "selectedIconPath": "./images/me1.png"
+                    }
+                ]
+            }
+        }
+
+        globalData = {
+            userInfo: null,
+            num: 1
+        }
+
+        constructor() {
+            super()
+            this.use('requestfix')
+        }
+
+        onLaunch() {
+            getExtJson.call(this)
+
+
+            wepy.login({   //取code值 res.code
+                success: res => {
+                    wx.request({     //用code值 取道 openid
+                        url: `${this.api_host}/restapi/member/openid`,
+                        data: {
+                            code: res.code
+                        },
+                        method: 'post',
+                        success: (res) => {
+                            let openid = res.data.data.openid
+                            if(!wx.getStorageSync('openid')){
+                                wx.setStorageSync('openid', openid)
+                            }
+                            wepy.request({
+                                url: `${this.api_host}/restapi/userinfo`,
+                                method: 'get',
+                                data: {
+                                    openid: openid
+                                },
+                                success: (res) => {
+                                    if(res.data.data.items.length > 0) {
+                                        this.globalData.userInfo = res.data.data.items[0]
+                                    } else {}
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        }
+
+//        getUserInfo(cb) {
+//            const that = this
+//            console.log(this.globalData.userInfo)
+//            if (this.globalData.userInfo) {
+//                return this.globalData.userInfo
+//            }
+//            wepy.getUserInfo({
+//                success(res) {
+//                    that.globalData.userInfo = res.userInfo
+//                    cb && cb(res.userInfo)
+//                    wepy.request({
+//                        url: `${this.api_host}/restapi/userinfo/create`,
+//                        method: 'post',
+//                        data: {
+//                            openid: wx.getStorageSync('openid'),
+//                            nickname: res.userInfo.nickName,
+//                            touxiang: res.userInfo.avatarUrl,
+//                        },
+//                        success: (res) => {
+//
+//                        }
+//                    })
+//                },
+//                fail(res) {
+//
+//                }
+//            })
+//        }
+    }
+</script>

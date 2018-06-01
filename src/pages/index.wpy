@@ -1,0 +1,125 @@
+<style lang="scss">
+    .index {
+        width: 100%;
+        .carouse1 {
+            width: 100%;
+            height: 283rpx;
+        }
+        .bock {
+            padding: 0 20rpx;
+            .a, .b, .c {
+                width: 100%;
+                height: 240rpx;
+                margin-top: 20rpx;
+                display: block;
+            }
+        }
+        .jishu{
+            width: 100%;
+            line-height: 45rpx;
+            color: #666;
+            font-size: 26rpx;
+            text-align: center;
+            margin-top: 50rpx;
+        }
+
+    }
+</style>
+<template>
+    <view class="index">
+        <view class="carouse1">
+            <carousel :carouselConfig.sync="carouselConfig"></carousel>
+        </view>
+        <view class="bock">
+            <image @tap="borrowSeeds" class="a" src="{{jiezhongzi}}"></image>
+            <image @tap='gardeningMall' class="b" src="{{shangcang}}"></image>
+            <image @tap='activityBulletin' class="c" src="{{gonga}}"></image>
+        </view>
+        <view class="jishu" @tap="xnr">
+            小泥人技术支持
+        </view>
+
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Carousel from '../components/Carousel'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Index extends wepy.page {
+        config = {
+            navigationBarTitleText: '种子图书馆'
+        }
+        components = {
+            carousel: Carousel
+        }
+        data = {
+            carouselConfig: {
+                "autoplay": true,
+                "interval": 3000,
+                "duration": 1000,
+                "loop": true,
+                "dots": true,
+                "dotsColor": "rgba(0,0,0,.5)",
+                "dotsActiveColor": "#fff"
+            },
+            jiezhongzi:'',
+            shangcang:'',
+            gonga:''
+        }
+        methods = {
+            xnr() {
+                wepy.navigateTo({
+                    url: `webView?url=https://www.xiaoniren.cn/support/index`
+                })
+            },
+            /*
+            * 借种子
+            * */
+            borrowSeeds() {
+                wx.navigateTo({url: `borrowSeeds`})
+            },
+            /*
+            * 园艺商城
+            * */
+            gardeningMall() {
+                wx.navigateTo({url: `yuanyi`})
+            },
+            /*
+            * 活动公告
+            * */
+            activityBulletin() {
+                wx.navigateTo({url: 'activity'})
+            }
+        }
+        onShareAppMessage() {
+        }
+        onLoad() {
+            getExtJson.call(this)
+            wepy.request({
+                url: `${this.api_host}/restapi/slideshow`,
+                data: {},
+                success: (res) => {
+                    res.data.data.items.forEach( item => {
+                        item.image = `${this.img_host}${item.image}`
+                    })
+                    this.carouselConfig.imgUrls = res.data.data.items
+                    this.$apply()
+                }
+            })
+
+            wepy.request({
+                url: `${this.api_host}/restapi/image`,
+                data: {},
+                success: (res) => {
+                    this.jiezhongzi= `${this.img_host}${res.data.data.items[0].image}`
+                    this.shangcang= `${this.img_host}${res.data.data.items[1].image}`
+                    this.gonga= `${this.img_host}${res.data.data.items[2].image}`
+                    console.log(this)
+                    this.$apply()
+                }
+            })
+        }
+    }
+</script>

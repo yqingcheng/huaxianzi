@@ -1,0 +1,190 @@
+<style lang="scss">
+    .seedsclass{
+        font-size: 28rpx;
+        color: #333;
+        .bloc{
+            padding: 20rpx;
+        }
+        .search{
+            width: 100%;
+            height: 65rpx;
+            border-radius: 10rpx;
+            border: 1px solid #ccc;
+            line-height: 65rpx;
+            position: relative;
+            .isse{
+                position: absolute;
+                right: 10rpx;
+            }
+            input{
+                width: 93%;
+                padding: 0 20rpx;
+                margin-right: 20rpx;
+                box-sizing: border-box;
+                color: #999;
+                height: 100%;
+                line-height: 65rpx;
+            }
+        }
+        .clas{
+            padding: 0 20rpx;
+            display: flex;
+            flex-flow: row wrap;
+            .seedcla{
+                flex: 0 1 49.3%;
+                margin-bottom: 10rpx;
+                .age{
+                    width: 100%;
+                    height: 278rpx;
+                    background: no-repeat;
+                    background-position: center;
+                    background-size: cover;
+                }
+                view{
+                    width: 100%;
+                    line-height: 60rpx;
+                    height: 60rpx;
+                    text-align: center;
+                    margin-bottom: 10rpx;
+                    overflow: hidden;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 1;
+                    -webkit-box-orient: vertical;
+                }
+
+            }
+            .seedcla:nth-child(even){
+                margin-left: 10rpx;
+            }
+        }
+    }
+</style>
+<template>
+    <view class="seedsclass">
+        <view class="bloc">
+            <view class="search">
+                <view @tap="skipSearch" >
+                    <icon class="isse" type="sousuo" fontSize="45" color="#999"></icon>
+                </view>
+
+                <!--<text>搜索名称</text>-->
+                <input  value="" placeholder="搜索名称" @input="input" type="text" />
+            </view>
+        </view>
+
+        <view class="clas">
+            <repeat for="{{seeds}}" key="{{index}}">
+                <view class="seedcla"
+                      data-name="{{item.morinda}}"
+                      data-id="{{item.id}}"
+                      @tap="seedsDetail">
+                    <view class="age" style="background-image: url('{{item.image}}')" ></view>
+                    <view>{{item.morinda}}</view>
+                </view>
+            </repeat>
+
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Seedsclass extends wepy.page {
+
+        components = {
+            icon: Icon
+        }
+        data = {
+            seeds: [],
+            search: '',
+            searchid: '',
+            pageCount: '',
+            currentPage: 1,
+            perPage: 10
+        }
+        methods = {
+            input(e) {
+                this.search = e.detail.value
+                this.$apply()
+            },
+            /*
+            * 搜索种子
+            * */
+            skipSearch(e) {
+                wepy.request({
+                    url: `${this.api_host}/restapi/flower-search`,
+                    data: {
+                        id: this.searchid,
+                        search: this.search
+                    },
+                    success: (res) => {
+                        res.data.data.items.forEach( item=> {
+                            item.image = `${this.img_host}${item.image}`
+                        })
+                        this.seeds = res.data.data.items
+                        this.$apply()
+                    }
+                })
+            },
+            /*
+            * 种子详情
+            * */
+            seedsDetail(e) {
+                let name = e.currentTarget.dataset.name
+                let id = e.currentTarget.dataset.id
+                wx.navigateTo({url: `seeddetails?name=${name}&id=${id}`})
+            }
+        }
+        onReachBottom() {
+            if(this.pageCount >= this.currentPage+1) {
+                this.currentPage ++
+                wepy.request({
+                    url: `${this.api_host}/restapi/flower?`,
+                    data: {
+                        kid: this.searchid,
+                        page: this.currentPage,
+                        'per-page': this.perPage,
+                        search: this.search
+                    },
+                    success: (res) => {
+                        res.data.data.items.forEach( item=> {
+                            item.image = `${this.img_host}${item.image}`
+                            this.seeds.push(item)
+                        })
+                        console.log(this.seeds)
+                        this.$apply()
+                    }
+                })
+            }
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            wx.setNavigationBarTitle({
+                title: option.name
+            })
+            this.searchid = option.id
+            wepy.request({
+                url: `${this.api_host}/restapi/flower?`,
+                data: {
+                    kid: option.id,
+                    page: this.currentPage,
+                    'per-page': this.perPage
+                },
+                success: (res) => {
+                    this.pageCount = res.data.data._meta.pageCount
+                    res.data.data.items.forEach( item=> {
+                        item.image = `${this.img_host}${item.image}`
+                    })
+                    this.seeds = res.data.data.items
+                    this.$apply()
+                }
+            })
+            this.$apply()
+        }
+    }
+</script>

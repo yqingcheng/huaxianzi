@@ -1,0 +1,164 @@
+<style lang="scss">
+    page{
+        height: 100%;
+    }
+    .selfextraction{
+        font-size: 30rpx;
+        position: relative;
+        color: #333;
+        min-height: 100%;
+        overflow: hidden;
+        .title{
+
+            width: 100%;
+            margin: 193rpx 0 55rpx 0;
+            text-align: center;
+            color: black;
+        }
+        .choose{
+            border: 1px solid #ccc;
+            /*height: 75rpx;*/
+            width: 90%;
+            margin: 0 auto;
+            border-radius: 10rpx;
+            display: flex;
+            align-items: center;
+            padding: 20rpx 20rpx 0 20rpx;
+            box-sizing: border-box;
+            .radio{
+                display: block;
+                margin-bottom: 20rpx;
+                width: 100%;
+            }
+            /*view{*/
+                /*flex: 0 0 90%;*/
+                /*overflow: hidden;*/
+            /*}*/
+            /*.v{*/
+                /*position: absolute;*/
+                /*right: 20rpx;*/
+                /*background: white;*/
+            /*}*/
+        }
+        .butt{
+            position: absolute;
+            bottom: 30rpx;
+            width: 100%;
+            view{
+                width: 95%;margin: 0 auto;
+                margin-top: 30rpx;
+                height: 85rpx;
+                color: white;
+                text-align: center;
+                border-radius: 15rpx;
+                background: #4975e5;
+                line-height: 85rpx;
+            }
+        }
+    }
+</style>
+<template>
+    <view class="selfextraction">
+        <view class="title">请选择地址</view>
+        <view class="choose">
+            <radio-group class="radio-group" bindchange="radioChange">
+                <label class="radio" wx:for="{{items}}" wx:key="{{index}}">
+                    <radio value="{{item.address}}" checked="{{item.checked}}"/>{{item.address}}
+                </label>
+            </radio-group>
+            <!--<icon1 class="v" type="zhankai1" fontSize="45" color="#999"></icon1>-->
+        </view>
+        <view class="butt">
+            <view @tap="buyseed">提交</view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Selfextraction extends wepy.page {
+        config = {
+            navigationBarTitleText: '借种子'
+        }
+        components = {
+            icon1: Icon
+        }
+        data = {
+            orderArr: [],
+            userName: "",
+            userphone: '',
+            usercity: '',
+            address: '',
+            items: [],
+            qudizhi: ''
+        }
+        methods = {
+            radioChange(e) {
+                this.qudizhi = e.detail.value
+                this.$apply()
+            },
+            buyseed() {
+                if(this.$parent.globalData.userInfo) {
+                    wepy.request({
+                        url: `${this.api_host}/restapi/order/create`,
+                        method: 'post',
+                        data: {
+                            items: this.orderArr,
+                            username: this.userName,
+                            telephone: this.userphone,
+                            open_id: wx.getStorageSync('openid'),
+                            province: this.qudizhi,
+                            city: this.usercity,
+                            address: this.address,
+                            pick: '自取',
+                            type: 1
+                        },
+                        success: (res) => {
+                            if(res.data.data) {
+                                wx.showToast({
+                                    title: res.data.data.data,
+                                    image: '../images/fails.png',
+                                    duration: 2000
+                                })
+                            } else {
+                                wx.navigateTo({url: `success`})
+                            }
+
+                            this.$apply()
+                        }
+                    })
+                } else {
+                    wx.showToast({
+                        title: '您还没有登录',
+                        image: '../images/fails.png',
+                        duration: 2000
+                    })
+                }
+            }
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            wepy.request({
+                url: `${this.api_host}/restapi/address`,
+                method: 'get',
+                data: {},
+                success: (res) => {
+                    this.items = res.data.data.items
+                    this.items[0].checked = true
+                    this.qudizhi = this.items[0].address
+                    this.$apply()
+                }
+            })
+            this.orderArr = JSON.parse(option.orderArr)
+            this.userName = option.username
+            this.address = option.useraddress
+            this.userphone = option.userphone
+            this.usercity = option.usercity
+        }
+    }
+</script>

@@ -1,0 +1,36 @@
+<style lang="scss">
+    .yuanyi{
+        font-size: 28rpx;
+        color: #333;
+    }
+</style>
+<template>
+    <view class="yuanyi">
+        <web-view src="http://d645891.wap.huaxianzi.com"></web-view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+
+    export default class Yuanyi extends wepy.page {
+        config = {
+            navigationBarTitleText: '园艺商城'
+        }
+        components = {
+
+        }
+        data = {
+
+        }
+        methods = {
+
+        }
+        onShareAppMessage() {
+        }
+        onLoad() {
+
+        }
+
+    }
+</script>

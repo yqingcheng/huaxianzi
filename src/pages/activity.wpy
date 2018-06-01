@@ -1,0 +1,140 @@
+
+<style lang="scss">
+    .activity{
+        font-size: 30rpx;
+        color: #333;
+        padding: 0 20rpx;
+        width: 100%;
+        box-sizing: border-box;
+        .seed{
+            width: 100%;
+            padding: 20rpx 0;
+            border-top: 1px solid #eee;
+            display: flex;
+            height: 242rpx;
+            .imh{
+                flex: 0 0 242rpx;
+                height: 100%;
+                margin-right: 20rpx;
+                background: no-repeat;
+                background-position: center;
+                background-size: cover;
+            }
+            .seed_bli{
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                .time{
+                    font-size: 22rpx;
+                    display: flex;
+                    align-items: center;
+                    text:nth-child(1){
+                        background: #dd3747;
+                        color: white;
+                        border-radius: 20rpx;
+                        padding: 0 15rpx;
+                        display: block;
+                        line-height: 38rpx;
+                        margin-top: 5rpx;
+                        margin-right: 20rpx;
+                        text-align: center;
+                        width: 100rpx;
+                    }
+                }
+                .detail{
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    overflow: hidden;
+                }
+                .addrezs{
+                    color: #888;
+                    position: relative;
+                    padding-left: 50rpx;
+                    .icons{
+
+                        position: absolute;
+                        left: 0;
+                    }
+                    text{
+                        display: -webkit-box;
+                        -webkit-box-orient: vertical;
+                        -webkit-line-clamp: 1;
+                        overflow: hidden;
+                        font-size: 28rpx;
+                    }
+                }
+            }
+        }
+    }
+</style>
+
+<template>
+    <view class="activity">
+        <repeat for="{{activity}}" key="{{index}}">
+            <view class="seed" @tap="activityName"
+                  data-id="{{item.id}}"
+                  data-name="{{item.activename}}">
+                <!--<image src="{{item.image}}" class="imh"></image>-->
+                <view class="imh" style="background-image: url('{{item.image}}')"></view>
+                <view class="seed_bli">
+                    <view class="time">
+                        <text>活动时间</text>
+                        <text>{{item.active_time}}</text>
+                    </view>
+                    <view>
+                        <text>活动名称：{{item.activename}}</text>
+                    </view>
+                    <view>
+                        <text class="detail">活动介绍：{{item.details}}</text>
+                    </view>
+                    <view class="addrezs">
+                        <icon class="icons" type="dizhi" color="#888" fontSize="45"></icon>
+                        <text>{{item.active_site}}</text>
+                    </view>
+                </view>
+            </view>
+        </repeat>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Activity extends wepy.page{
+        config = {
+            navigationBarTitleText: '活动公告'
+        }
+        data= {
+            activity: []
+        }
+        methods = {
+            activityName(e) {
+                let id = e.currentTarget.dataset.id
+                wx.navigateTo({url: `activitydetails?name=${e.currentTarget.dataset.name}&id=${id}`})
+            }
+        }
+        components = {
+            icon: Icon
+        }
+        onShareAppMessage() {
+        }
+        onLoad() {
+            getExtJson.call(this)
+
+            wepy.request({
+                url: `${this.api_host}/restapi/activity`,
+                data: {},
+                success: (res) => {
+                    res.data.data.items.forEach( item => {
+                        item.image = `${this.img_host}${item.image}`
+                    })
+                    this.activity = res.data.data.items
+                    this.$apply()
+                }
+            })
+        }
+    }
+</script>

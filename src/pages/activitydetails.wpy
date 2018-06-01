@@ -1,0 +1,152 @@
+
+<style lang="scss">
+    .activitydetails{
+        font-size: 30rpx;
+        color: #333;
+        .activity{
+            padding: 30rpx 80rpx 0 80rpx;
+            image{
+                width: 100%;
+                /*height: 265rpx;*/
+                border-radius: 15rpx;
+                margin-bottom: 10rpx;
+            }
+            .name{
+                line-height: 58rpx;
+            }
+            .time{
+                margin-top: 10rpx;
+                font-size: 22rpx;
+                display: flex;
+                align-items: center;
+                text:nth-child(1){
+                    background: #dd3747;
+                    color: white;
+                    border-radius: 20rpx;
+                    padding: 0 15rpx;
+                    display: block;
+                    line-height: 38rpx;
+                    margin-top: 5rpx;
+                    margin-right: 20rpx;
+                    text-align: center;
+                }
+            }
+            .addrezs{
+                margin-top: 35rpx;
+                color: #888;
+                position: relative;
+                padding-left: 50rpx;
+                .icons{
+                    position: absolute;
+                    left: 0;
+                }
+                text{
+
+                    font-size: 28rpx;
+                }
+            }
+
+        }
+        .participate{
+            width: 96%;
+            margin: 90rpx auto 0 auto;
+            height: 90rpx;
+            background: #4975e5;
+            text-align: center;
+            line-height: 90rpx;
+            border-radius: 10rpx;
+            color: white;
+        }
+    }
+</style>
+
+<template>
+    <view class="activitydetails">
+        <view class="activity">
+            <image src="{{image}}" mode="widthFix"></image>
+            <view class="name">活动名称：{{activename}}</view>
+            <view class="name">活动介绍：{{details}}</view>
+            <view class="time">
+                <text>活动时间</text>
+                <text>{{active_time}}</text>
+            </view>
+            <view class="addrezs">
+                <icon class="icons" type="dizhi" color="#888" fontSize="45"></icon>
+                <text>{{active_site}}</text>
+            </view>
+
+        </view>
+        <view class="participate" @tap="participate">
+            {{con}}
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Activitydetails extends wepy.page{
+
+        data= {
+            name: '',
+            activename: '',
+            details: '',
+            active_time: '',
+            active_site: '',
+            image: '',
+            id: '',
+            con: '参加活动'
+        }
+        methods = {
+
+            participate(e) {
+                if(this.con == '参加活动') {
+                    wx.navigateTo({url: `participate?name=${this.name}&id=${this.id}`})
+                } else {
+                    wx.showToast({
+                        title: '已参加该活动',
+                        image: '../images/fails.png',
+                        duration: 2000
+                    })
+                }
+            }
+        }
+        components = {
+            icon: Icon
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            this.name = option.name
+            wx.setNavigationBarTitle({
+                title: option.name
+            })
+            wepy.request({
+                url: `${this.api_host}/restapi/activity/view`,
+                data: {
+                    id: option.id,
+                    open_id: wx.getStorageSync('openid'),
+                },
+                success: (res) => {
+                    this.image = `${this.api_host}${res.data.data.image}`
+                    this.activename = res.data.data.activename
+                    this.details = res.data.data.details
+                    this.active_time = res.data.data.active_time
+                    this.active_site = res.data.data.active_site
+                    this.id = res.data.data.id
+                    if(res.data.data.type == '已参加') {
+                        this.con = '已参加该活动'
+                    }
+                    if(res.data.data.type == '未参加') {
+                        this.con = '参加活动'
+                    }
+                    this.$apply()
+                }
+            })
+            this.$apply()
+        }
+    }
+</script>

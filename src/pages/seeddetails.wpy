@@ -1,0 +1,236 @@
+<style lang="scss">
+    @import '../mixins/wxParse/wxParse.wxss';
+    .seeddetails{
+        font-size: 28rpx;
+        color: #333;
+        padding: 44rpx 20rpx 40rpx 20rpx;
+        /*position: relative;*/
+        .tiimg{
+            width: 100%;
+            /*height: 247rpx;*/
+            border-radius: 15rpx;
+        }
+        .detai{
+            image{
+                width: 100%;
+            }
+            .detailli{
+                display: flex;
+                border-bottom: 1px solid #eee;
+                view:nth-child(1){
+                    padding: 15rpx 0;
+                    flex: 0 0 150rpx;
+                    display: flex;
+                    align-items: center;
+                }
+                view:nth-child(2){
+                    flex: 1 1 100%;
+                    padding: 15rpx 0;
+                    padding-left: 10rpx;
+                    border-left: 1px solid #eee;
+                    color: #666;
+                }
+            }
+        }
+        .foote{
+            width: 100%;
+            margin-top: 40rpx;
+            display: flex;
+            justify-content: center;
+            view{
+                width: 270rpx;
+                height: 90rpx;
+                border-radius: 15rpx;
+                text-align: center;
+                line-height: 90rpx;
+                color: white;
+            }
+            view:nth-child(1){
+                background: #4a75e5;
+                margin-right: 20rpx;
+            }
+            view:nth-child(2){
+                background: #e80000;
+            }
+        }
+        .shopcar{
+            position: fixed;
+            right: 0;
+            top:820rpx;
+            width: 80rpx;
+            height: 80rpx;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            text-align: center;
+            line-height: 80rpx;
+        }
+    }
+</style>
+<template>
+    <view class="seeddetails">
+        <import src="../mixins/wxParse/wxParse.wxml"></import>
+        <image class="tiimg" src="{{image}}" mode="widthFix"></image>
+        <view class="detai">
+            <ul>
+                <li class="detailli" wx:for="{{list}}" wx:key="{{index}}">
+                    <view>{{item.name}}</view>
+                    <view wx:if="{{item.dt}}">{{item.dt}}</view>
+                </li>
+                <li class="detailli">
+                    <view>生长习性</view>
+                    <view>
+                        <template is="wxParse" data="{{wxParseData: detailEle.nodes}}"></template>
+                    </view>
+                </li>
+            </ul>
+        </view>
+        <view class="shopcar" @tap="shopCar">
+            <icon type="gouwuche" color="#888" fontSize="55"></icon>
+        </view>
+        <view class="foote" wx:if="{{!status}}">
+            <view @tap="addShopcar" data-id="{{id}}">加入购物车</view>
+            <view @tap="borrewSeeds">借种子</view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import getExtJson from '../mixins/getExtJson'
+    import wxParse from '../mixins/wxParse/wxParse'
+    import Icon from '../components/Icon'
+
+    export default class Seeddetails extends wepy.page {
+
+        components = {
+            icon: Icon
+        }
+        data = {
+            id: '',
+            list: [
+                {
+                    name: '学名',
+                    dt: ''
+                },{
+                    name: '别名',
+                    dt: ''
+                },{
+                    name: '拉丁名',
+                    dt: ''
+                },{
+                    name: '科属',
+                    dt: ''
+                },{
+                    name: '分类',
+                    dt: ''
+                },{
+                    name: '光照',
+                    dt: ''
+                },{
+                    name: '浇水',
+                    dt: ''
+                },{
+                    name: '花期',
+                    dt: ''
+                }
+            ],
+            name: '',
+            status: '',
+            orderArr: [],
+            image: '',
+            deadline: ''
+        }
+        methods = {
+            shopCar() {
+                wx.navigateTo({url: `shopCar`})
+            },
+            /*
+            * 加入购物车
+            * */
+            addShopcar(e) {
+                if(this.$parent.globalData.userInfo) {
+                    wepy.request({
+                        url: `${this.api_host}/restapi/user-car/create`,
+                        method: 'POST',
+                        data: {
+                            shop_id: e.currentTarget.dataset.id,
+                            openid: wx.getStorageSync('openid'),
+                            quantity: 1
+                        },
+                        success: (res) => {
+                            wx.showToast({
+                                title: '已加入购物车',
+                                icon: 'success',
+                                duration: 2000
+                            })
+                            this.$apply()
+                        }
+                    })
+                } else {
+                    wx.showToast({
+                        title: '您还没有登录',
+                        image: '../images/fails.png',
+                        duration: 2000
+                    })
+                }
+            },
+            /*
+            * 借种子
+            * */
+            borrewSeeds(e) {
+                this.orderArr = [{
+                    shopid: this.id,
+                    order_name: this.list[0].dt,
+                    plantname: this.list[4].dt,
+                    quantity: 1,
+                    image: this.image,
+                    deadline: this.deadline
+                }]
+                wx.navigateTo({url: `distributionmode?name=${this.name}&orderArr=${JSON.stringify(this.orderArr)}`})
+            }
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            this.status = option.status
+            this.name = option.name
+            wx.setNavigationBarTitle({
+                title: option.name
+            })
+            let url = ''
+            if(this.status) {
+                url = '/restapi/user-seed/view'
+            } else {
+                url = '/restapi/flower/view'
+            }
+            wepy.request({
+                url: `${this.api_host}${url}`,
+                data: {
+                    id: option.id
+                },
+                success: (res) => {
+                    let detail = res.data.data
+                    this.list[0].dt = detail.morinda
+                    this.list[1].dt = detail.name
+                    this.list[2].dt = detail.atin_name
+                    this.list[3].dt = detail.famaily
+                    this.list[4].dt = detail.kind_id
+                    this.list[5].dt = detail.sunshine
+                    this.list[6].dt = detail.water
+                    this.list[7].dt = detail.florescence
+                    this.id = detail.id
+                    this.deadline = detail.deadline
+                    this.image = `${this.img_host}${detail.image}`
+                    if(detail.image_text) {
+                        let image_text = detail.image_text.replace(/<img src="/g, '<img src="http://mp.flower-garden.com.cn')
+                        wxParse.wxParse('detailEle', 'html', image_text, this)
+                    }
+
+                    this.$apply()
+                }
+            })
+            this.$apply()
+        }
+    }
+</script>

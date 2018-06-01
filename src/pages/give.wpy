@@ -1,0 +1,229 @@
+
+<style lang="scss">
+    .give{
+        font-size: 28rpx;
+        color: #333;
+        padding-top: 170rpx;
+        .title{
+            position: fixed;
+            width: 100%;
+            background: white;
+            top:0;
+            .add{
+                padding: 0 40rpx;
+                line-height: 48rpx;
+                text-align: right;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .tab{
+                padding: 20rpx;
+                display: flex;
+                .view1{
+                    width: 180rpx;
+                    height: 65rpx;
+                    border-radius: 10rpx;
+                    border: 1px solid #ccc;
+                    text-align: center;
+                    display: flex;
+                    justify-content: space-around;
+                    align-items: center;
+                }
+                .view2{
+                    width: 100%;
+
+                    height: 65rpx;
+                    border-radius: 10rpx;
+                    border: 1px solid #ccc;
+                    line-height: 65rpx;
+                    position: relative;
+                    display: flex;
+                    .isse{
+                        position: absolute;
+                        right: 10rpx;
+                    }
+                    input{
+                        width: 90%;
+                        margin-right: 20rpx;
+                        margin-left: 20rpx;
+                        color: #999;
+                        box-sizing: border-box;
+                        height: 100%;
+                        line-height: 65rpx;
+                    }
+                }
+            }
+        }
+        .shop{
+            width: 100%;
+            .history{
+                .name{
+                    background: #eee;
+                    line-height: 85rpx;
+                    text-align: center;
+                    font-size: 35rpx;
+                    color: #333;
+                }
+            }
+        }
+
+    }
+</style>
+
+<template>
+    <view class="give">
+        <view class="title" >
+            <view class="add" @tap="addTo">添加</view>
+            <view class="tab">
+                <!--<view @tap="area" class="view1">-->
+
+                    <!--<icon1 class="zhankai1" type="zhankai1" fontSize="45" color="#999"></icon1>-->
+                <!--</view>-->
+                <view class="view2">
+                    <input value="" @input="input" type="text" placeholder="搜索名称或城市" />
+                    <view @tap="skipSearch">
+                        <icon  class="isse" type="sousuo" fontSize="45" color="#999"></icon>
+                    </view>
+                </view>
+            </view>
+        </view>
+        <view class="shop">
+            <view class="history">
+                <view class="name">历史记录</view>
+                <returnz :status.sync="status" :returnRecord.sync="history" @del.user="del" @modify.user="modify" @goodsDetails.user="goodsDetails"></returnz>
+            </view>
+            <!--<view class="history">-->
+                <!--<view class="name">失效信息</view>-->
+                <!--<returnz1 :returnRecord="shixiao" @del.user="del" @modify.user="modify" @goodsDetails.user="goodsDetails"></returnz1>-->
+            <!--</view>-->
+        </view>
+
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+    import Returnz from '../components/Returnz'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Give extends wepy.page{
+        data= {
+            history: [],
+            name: '',
+            status: 'all',
+            quyu: [
+                '东城区',
+                '西城区',
+                '朝阳区',
+                '丰台区',
+                '石景山区',
+                '海淀区',
+                '门头沟区',
+                '房山区',
+                '通州区',
+                '顺义区',
+                '昌平区',
+                '大兴区',
+                '怀柔区',
+                '平谷区',
+                '密云区',
+                '延庆区'
+            ],
+            search: '',
+            str: ''
+        }
+        methods = {
+            input(e) {
+                this.search = e.detail.value
+                this.$apply()
+            },
+            /*
+            * 添加
+            * */
+            addTo() {
+                wx.navigateTo({url: 'add?name=添加'})
+            },
+            /*
+            * 搜索
+            * */
+            skipSearch() {
+
+                console.log(this.str)
+                wepy.request({
+                    url: `${this.api_host}/restapi/exchange-search`,
+                    data: {
+                        status: this.str,
+                        city: '',
+                        search: this.search
+                    },
+                    success: (res) => {
+                        this.history = res.data.data.items
+                        this.$apply()
+                    }
+                })
+            },
+            /*
+            * 区域
+            * */
+            area() {
+                console.log(3)
+            },
+            /*
+            * 删除
+            * */
+            del(e) {
+
+            },
+            /*
+            * 修改
+            * */
+//            modify(e) {
+//                wx.navigateTo({url: `add?name=修改&id=${e.currentTarget.dataset.id}`})
+//            },
+            /*
+            * 商品详情
+            * */
+            goodsDetails(e) {
+                wx.navigateTo({url: `details?name=${this.name}&id=${e.currentTarget.dataset.id}`})
+            }
+        }
+        components = {
+            icon: Icon,
+            icon1: Icon,
+            returnz: Returnz,
+            returnz1: Returnz,
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+//            this.$parent.getUserInfo()
+            this.name = option.name
+            wx.setNavigationBarTitle({
+                title: option.name
+            })
+            let data = {}
+            if(option.name == '赠送') {
+                this.str = 2
+                data = {
+                    status: 2
+                }
+            } else if(option.name == '索要') {
+                this.str = 1
+                data = {
+                    status: 1
+                }
+            }
+            wepy.request({
+                url: `${this.api_host}/restapi/exchange`,
+                data: data,
+                success: (res) => {
+                    this.history = res.data.data.items
+                    this.$apply()
+                }
+            })
+            this.$apply()
+        }
+    }
+</script>

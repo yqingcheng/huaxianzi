@@ -1,0 +1,337 @@
+
+<style lang="scss">
+    .add{
+        font-size: 30rpx;
+        color: #333;
+        .imae{
+            width: 585rpx;
+            min-height: 200rpx;
+            padding: 0;
+            margin: 30rpx auto 20rpx auto;
+            display: block;
+            border-radius: 15rpx;
+            border: 1px solid #ccc;
+            position: relative;
+            view{
+                position: absolute;
+                bottom: 20rpx;
+                width: 100%;
+                line-height: 30rpx;
+                text-align: center;
+                color: blueviolet;
+            }
+            image{
+                width: 585rpx;
+
+                border-radius: 15rpx;
+            }
+        }
+        .detra{
+            .sde{
+                box-sizing: border-box;
+                padding: 20rpx;
+                border-bottom: 1px solid #eee;
+                /*height: 88rpx;*/
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                view{
+                    flex: 0 0 180rpx;
+                }
+                textarea{
+                    flex: 1 auto;
+                    border-left: 1px solid #eee;
+                }
+            }
+        }
+        .bian{
+            border-top: 17rpx solid #eee;
+        }
+        .fabu{
+            width: 94%;
+            height: 85rpx;
+            border-radius: 10rpx;
+            background: #4975e5;
+            color: white;
+            margin: 50rpx auto 0 auto;
+            line-height: 85rpx;
+            text-align: center;
+            overflow: hidden;
+        }
+        .sde{
+            width: 100%;
+            /*height: 30rpx;*/
+        }
+        .radio-group{
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 40rpx;
+        }
+    }
+</style>
+
+<template>
+    <view class="add">
+        <view class="imae" @tap="chooseimg">
+            <view wx:if="{{!status}}">
+                点击上传图片
+            </view>
+            <image src="{{img}}" mode="widthFix"></image>
+        </view>
+
+        <view class="detra">
+            <view class="sde"><view>名称：</view><textarea @input="seedname" auto-height="true"
+                                value="{{seedname}}" cols="30" rows="10"></textarea></view>
+            <view class="sde"><view>种类：</view><textarea @input="seedkind" auto-height="true"
+                                value="{{seedkind}}" cols="30" rows="10"></textarea></view>
+            <view class="sde"><view>数量：</view><textarea @input="quantity" auto-height="true"
+                               value="{{quantity}}" cols="30" rows="10"></textarea></view>
+            <view class="sde"><view>有效期限：</view><textarea @input="deadline" auto-height="true"
+                                 value="{{deadline}}" cols="30" rows="10"></textarea></view>
+            <view class="sde"><view>详细描述：</view><textarea @input="depict" auto-height="true"
+                                 value="{{depict}}" cols="30" rows="10"></textarea></view>
+        </view>
+
+        <view class="detra bian">
+            <view class="sde"><view>姓名：</view><textarea @input="username" auto-height="true"
+                                    value="{{username}}" cols="30" rows="10"></textarea></view>
+            <view class="sde"><view>地区：</view><textarea @input="city" auto-height="true"
+                                                        value="{{city}}" cols="30" rows="10"></textarea></view>
+            <view class="sde"><view>联系方式：</view><textarea @input="tele" auto-height="true"
+                                  value="{{tele}}" cols="30" rows="10"></textarea></view>
+            <view class="sde" wx:if="{{status}}"><view>方式：{{status}}</view></view>
+        </view>
+        <view wx:if="{{!status}}">
+            <radio-group class="radio-group" bindchange="radioChange">
+                <view>
+                    <radio value="送出" checked="checked"/>送出
+                </view>
+                <view>
+                    <radio value="索要" checked="checked"/>索要
+                </view>
+
+            </radio-group>
+        </view>
+        <modal />
+
+
+
+        <view wx:if="{{!status}}" class="fabu" @tap="release">
+            发布
+        </view>
+        <view class="sde">
+
+        </view>
+
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import getExtJson from '../mixins/getExtJson'
+    import Modal from '../components/Modal'
+
+    export default class Add extends wepy.page{
+        data= {
+            status: '',
+            img: '',
+            seedname: '',
+            quantity: '',
+            tele: '',
+            deadline: '',
+            depict: '',
+            seedkind: '',
+            city: '',
+            str: 1,
+            id : '',
+            username:'',
+            opname: '',
+        }
+        components = {
+            modal: Modal
+        }
+        onShareAppMessage() {
+        }
+        methods = {
+            seedname(e) {
+                this.seedname = e.detail.value
+                this.$apply()
+            },
+            username(e) {
+                this.username = e.detail.value
+                this.$apply()
+            },
+            quantity(e) {
+                this.quantity = e.detail.value
+                this.$apply()
+            },
+            tele(e) {
+                this.tele = e.detail.value
+                this.$apply()
+            },
+            deadline(e) {
+                this.deadline = e.detail.value
+                this.$apply()
+            },
+            depict(e) {
+                this.depict = e.detail.value
+                this.$apply()
+            },
+            seedkind(e) {
+                this.seedkind = e.detail.value
+                this.$apply()
+            },
+            city(e) {
+                this.city = e.detail.value
+                this.$apply()
+            },
+            /*
+            * 选择送出还是索要
+            * */
+            radioChange(e) {
+                if(e.detail.value == '索要') {
+                    this.str = 1
+                } else if(e.detail.value == '送出') {
+                    this.str = 2
+                }
+                this.$apply()
+            },
+            /*
+            * 发布
+            * */
+            release() {
+                if(this.opname == '修改') {
+                    wepy.request({
+                        url: `${this.api_host}/restapi/exchange/alter`,
+                        method: 'post',
+                        data: {
+                            seedname: this.seedname,
+                            image: this.img,
+                            username: this.username,
+                            quantity: this.quantity,
+                            tele: this.tele,
+                            deadline: this.deadline,
+                            depict: this.depict,
+                            seedkind: this.seedkind,
+                            city: this.city,
+                            status: this.str,
+                            id: this.id
+                        },
+                        success: (res) => {
+                            console.log(res)
+                            wx.reLaunch({url: 'me?num=2'})
+                            this.$apply()
+                        }
+                    })
+                } else {
+                    if(this.seedname && this.username && this.quantity && this.img && this.str && this.tele) {
+
+                        if(this.$parent.globalData.userInfo) {
+                            wepy.request({
+                                url: `${this.api_host}/restapi/exchange/create`,
+                                method: 'post',
+                                data: {
+                                    seedname: this.seedname,
+                                    openid: wx.getStorageSync('openid'),
+                                    image: this.img,
+                                    username: this.username,
+                                    quantity: this.quantity,
+                                    tele: this.tele,
+                                    deadline: this.deadline,
+                                    depict: this.depict,
+                                    seedkind: this.seedkind,
+                                    city: this.city,
+                                    status: this.str
+                                },
+                                success: (res) => {
+                                    wx.showToast({
+                                        title: '发布成功',
+                                        icon: "success",
+                                        duration: 2000
+                                    })
+                                    wx.reLaunch({url: 'find'})
+                                    this.$apply()
+                                }
+                            })
+                        } else {
+                            wx.showToast({
+                                title: '您还没有登录',
+                                image: '../images/fails.png',
+                                duration: 2000
+                            })
+                        }
+                    } else {
+                        wx.showToast({
+                            title: '请填写完整信息',
+                            image: '../images/fails.png',
+                            duration: 2000
+                        })
+                    }
+                }
+
+            },
+            chooseimg() {
+                if(!this.status) {
+                    wx.chooseImage({
+                        success: (res) => {
+                            let tempFilePaths = res.tempFilePaths[0]
+                            wx.uploadFile({
+                                url: `${this.api_host}/restapi/exchange/uploads`, //仅为示例，非真实的接口地址
+                                filePath: tempFilePaths,
+                                name: 'file',
+                                formData:{},
+                                success: (res) =>{
+                                    let url = JSON.parse(res.data).data.file.url
+                                    this.img = `${this.img_host}${url}`
+                                    this.$apply()
+                                }
+                            })
+                            this.$apply()
+                        }
+                    })
+                }
+
+            }
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            if(option.id) {
+                this.id = option.id
+                wepy.request({
+                    url: `${this.api_host}/restapi/exchange/view`,
+                    method: 'get',
+                    data: {
+                        id: this.id
+                    },
+                    success: (res) => {
+                        this.seedname = res.data.data.seedname
+                        this.img = res.data.data.image
+                        this.quantity = res.data.data.quantity
+                        this.tele = res.data.data.tele
+                        this.deadline = res.data.data.deadline
+                        this.depict = res.data.data.depict
+                        this.seedkind = res.data.data.seedkind
+                        this.city = res.data.data.city
+                        if(option.name !== '修改') {
+                            if(res.data.data.status == 1) {
+                                this.status = '索要'
+                            } else if(res.data.data.status == 2) {
+                                this.status = '赠送'
+                            }
+                        }
+
+                        this.username = res.data.data.username
+                        this.$apply()
+                    }
+                })
+            }
+            this.status = option.status
+            this.opname = option.name
+            this.$apply()
+            wx.setNavigationBarTitle({
+                title: option.name
+            })
+        }
+    }
+</script>

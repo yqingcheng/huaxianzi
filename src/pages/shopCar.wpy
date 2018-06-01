@@ -1,0 +1,302 @@
+<style lang="scss">
+    .shopcar{
+        font-size: 28rpx;
+        color: #333;
+        box-sizing: border-box;
+        padding: 20rpx 20rpx 100rpx 20rpx;
+
+        .dels{
+            line-height: 56rpx;
+            width: 108rpx;
+            border: 1px solid #eee;
+            border-radius: 10rpx;
+            float: right;
+            text-align: center;
+        }
+        .comm{
+            float: left;
+            margin-top: 20rpx;
+            display: flex;
+            flex-flow: row wrap;
+            width: 100%;
+            margin-bottom: 100rpx;
+        }
+        .footer{
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100rpx;
+            border-top: 1px solid #eee;
+            padding: 0 20rpx;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 30rpx;
+            background: white;
+            .all{
+
+            }
+            .rig{
+                display: flex;
+                align-items: center;
+
+                view:nth-child(2){
+                    width: 160rpx;
+                    height: 70rpx;
+                    border-radius: 10rpx;
+                    background: #ff493a;
+                    text-align: center;
+                    line-height: 70rpx;
+                    margin-left: 60rpx;
+                    color: white;
+                }
+            }
+        }
+    }
+</style>
+
+<template>
+    <view class="shopcar">
+        <view class="dels" @tap="dels">删除</view>
+        <view class="comm">
+            <seed :myzhongzi.sync="myzhongzi" @jia.user="jia" @jian.user="jian" @checkboxChange.user="checkboxChange"></seed>
+        </view>
+        <view class="footer">
+            <view class="all">
+                <checkbox-group @change="allChange"  class="checkbox">
+                    <checkbox value="ye"/>全选
+                </checkbox-group>
+
+            </view>
+            <view class="rig">
+                <view>合计：{{heji}}包</view>
+                <view @tap="shopCarOk">确认</view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Seed from '../components/Seed'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class ShopCar extends wepy.page {
+        config = {
+            navigationBarTitleText: '我的购物车'
+        }
+        components = {
+            seed: Seed
+        }
+        data = {
+            arr: [],
+            myzhongzi: [],
+            heji: 0,
+            orderArr: []
+        }
+        methods = {
+            jia(e) {
+                console.log(e,this.myzhongzi)
+                this.myzhongzi.forEach( item => {
+                    if(item.shop_id == e.currentTarget.dataset.id) {
+                        item.quantity ++
+                        console.log(item.checked)
+                        if(item.checked) {
+                            this.heji ++
+                        }
+                    }
+                })
+                this.$apply()
+            },
+            jian(e) {
+                this.myzhongzi.forEach( item => {
+                    if(item.shop_id == e.currentTarget.dataset.id) {
+                        if(item.quantity !== 0) {
+                            item.quantity --
+                            if(item.checked) {
+                                this.heji --
+                            }
+                        }
+                    }
+                })
+                this.$apply()
+            },
+            shopCarOk() {
+                if(this.orderArr.length > 0) {
+                    if(this.heji < 2) {
+                        wx.showToast({
+                            title: '一次最少买两包',
+                            image: '../images/fails.png',
+                            duration: 2000
+                        })
+                    } else if(this.heji > 2) {
+                        wx.showToast({
+                            title: '一次最多买两包',
+                            image: '../images/fails.png',
+                            duration: 2000
+                        })
+                    } else {
+                        wx.navigateTo({url: `distributionmode?orderArr=${JSON.stringify(this.orderArr)}`})
+                    }
+                } else {
+                    wx.showToast({
+                        title: '请选择种子',
+                        image: '../images/fails.png',
+                        duration: 2000
+                    })
+                }
+            },
+            /*
+            * 全选
+            * */
+            allChange(e) {
+                if(e.detail.value[0]) {
+                    this.heji = 0
+                    this.myzhongzi.forEach(item => {
+                        item.checked = true
+                        this.arr.push(item.id)
+                        this.orderArr.push({
+                            shopid: item.shopid,
+                            order_name: item.order_name,
+                            plantname: item.shop_kind,
+                            quantity: item.quantity,
+                            image: item.image,
+                            deadline: item.deadline
+                        })
+                        this.heji += (+item.quantity)
+                    })
+                } else {
+                    this.myzhongzi.forEach(item => {
+                        item.checked = false
+                        this.arr = []
+                        this.orderArr = []
+                        this.heji = 0
+                    })
+                }
+                this.$apply()
+            },
+            /*
+            * 单选
+            * */
+            checkboxChange(e) {
+                if(e.detail.value[0]) {
+                    this.myzhongzi.forEach( item => {
+                        if(item.shop_id == e.currentTarget.dataset.id) {
+                            item.checked = true
+                        }
+                    })
+                    this.arr.push(e.detail.value[0])
+                    this.orderArr.push({
+                        shopid: e.currentTarget.dataset.id,
+                        order_name: e.currentTarget.dataset.shop_name,
+                        plantname: e.currentTarget.dataset.shop_kind,
+                        quantity: e.currentTarget.dataset.quantity,
+                        image: e.currentTarget.dataset.image,
+                        deadline: e.currentTarget.dataset.deadline
+                    })
+                    this.heji += (+e.currentTarget.dataset.quantity)
+                } else {
+                    this.myzhongzi.forEach( item => {
+                        if(item.shop_id == e.currentTarget.dataset.id) {
+                            item.checked = true
+                        }
+                    })
+                    let id = e.currentTarget.dataset.id
+                    let index = this.arr.indexOf(id)
+                    let index2 = ''
+                    if(this.orderArr) {
+                        this.orderArr.forEach( (item, index) => {
+                            if(item.shopid == id) {
+                                index2 = index
+                            }
+                        })
+                    }
+                    this.orderArr.splice(index2, 1)
+                    this.arr.splice(index, 1)
+                    this.heji -= (+e.currentTarget.dataset.quantity)
+                }
+                this.$apply()
+            },
+            /*
+            * 删除
+            * */
+            dels() {
+                wx.showModal({
+                    title: '提示',
+                    content: '确定删除种子？',
+                    success: (res) => {
+                        if (res.confirm) {
+                            if(this.$parent.globalData.userInfo) {
+                                wepy.request({
+                                    url: `${this.api_host}/restapi/user-car/delete`,
+                                    method: 'delete',
+                                    data: {
+                                        id: this.arr
+                                    },
+                                    success: (res) => {
+                                        console.log(res)
+                                        let arr1 = []
+                                        for(let i = 0; i < this.myzhongzi.length; i++){
+                                            for(let j = 0; j < this.arr.length; j++){
+                                                if(this.myzhongzi[i].id == this.arr[j]) {
+                                                    this.myzhongzi.splice(i, 1)
+                                                    this.arr.splice(j, 1)
+                                                    if(i>0) {
+                                                        i --
+                                                    }
+                                                    j --
+                                                }
+                                            }
+                                        }
+                                        this.$apply()
+                                    }
+                                })
+                            } else {
+                                wx.showToast({
+                                    title: '您还没有登录',
+                                    image: '../images/fails.png',
+                                    duration: 2000
+                                })
+                            }
+                        } else if (res.cancel) {
+                            console.log('用户点击取消')
+                        }
+                    }
+                })
+                this.$apply()
+            }
+        }
+        onShareAppMessage() {
+        }
+        onLoad() {
+            getExtJson.call(this)
+            if(wx.getStorageSync('openid')) {
+                wepy.request({
+                    url: `${this.api_host}/restapi/user-car`,
+                    data: {
+                        openid: wx.getStorageSync('openid')
+                    },
+                    success: (res) => {
+                        res.data.data.items.forEach( item => {
+                            console.log(item)
+                            item.image = `${this.img_host}${item.image}`
+                            item.os = 1
+                            item.checked = false
+                        })
+                        this.myzhongzi = res.data.data.items
+                        this.$apply()
+                    }
+                })
+            } else {
+                wx.showToast({
+                    title: '没有openid',
+                    image: '../images/fails.png',
+                    duration: 2000
+                })
+            }
+
+        }
+    }
+</script>

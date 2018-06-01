@@ -1,0 +1,175 @@
+<style lang="scss">
+    page{
+        height: 100%;
+    }
+    .participate{
+        font-size: 30rpx;
+        color: #333;
+        padding: 0 20rpx;
+        position: relative;
+        min-height: 100%;
+        .title{
+            padding: 35rpx 0;
+            text-align: center;
+            color: black;
+            font-size: 32rpx;
+            border-top: 1px solid #eee;
+        }
+        .detai{
+            border-top: 1px solid #eee;
+            .detailli{
+                display: flex;
+                border-bottom: 1px solid #eee;
+                view:nth-child(1){
+                    padding: 35rpx 0;
+                    flex: 0 0 230rpx;
+                    display: flex;
+                    align-items: center;
+                }
+                view:nth-child(2){
+                    flex: 1 1 100%;
+                    padding: 30rpx 0;
+                    padding-left: 10rpx;
+                    display: flex;
+                    align-items: center;
+                    color: #666;
+                    textarea{
+                        width: 100%;
+                        height: 30rpx;
+                    }
+                }
+
+            }
+        }
+        .footer{
+            width: 100%;
+            border-bottom: 30rpx;
+            height: 85rpx;
+            margin-left: -20rpx;
+            padding-top: 30rpx;
+            .fabu{
+                width: 94%;
+                height: 85rpx;
+                border-radius: 10rpx;
+                background: #4975e5;
+                color: white;
+                line-height: 85rpx;
+                text-align: center;
+                position: absolute;
+                bottom: 20rpx;
+                margin-left: 3%;
+            }
+        }
+    }
+</style>
+<template>
+    <view class="participate">
+        <view class="title">填写报名信息</view>
+        <view class="detai">
+            <ul>
+                <li class="detailli" wx:for="{{qw}}" wx:key="{{index}}">
+                    <view>{{item.name}}</view>
+                    <view>
+                        <textarea wx:if="{{!item.adds}}"
+                                  bindinput="change"
+                                  data-index="{{index}}"
+                                  auto-height="true" id=""
+                                  value="{{item.dt}}" cols="30" rows="10"></textarea>
+                    </view>
+
+                </li>
+            </ul>
+        </view>
+        <view class="footer">
+            <view class="fabu" @tap="addto">
+                提交
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Participate extends wepy.page {
+
+        components = {
+
+        }
+        data = {
+            qw: [
+                {
+                    name: '姓名'
+                },{
+                    name: '联系方式'
+                },{
+                    name: '备注'
+                }
+            ],
+            name: '',
+            value1: '',
+            value2: '',
+            value3: ''
+        }
+        methods = {
+            change(e) {
+                let index = e.currentTarget.dataset.index
+                if(index == 0) {
+                    this.value1 = e.detail.value
+                }if(index == 1) {
+                    this.value2 = e.detail.value
+                }if(index == 2) {
+                    this.value3 = e.detail.value
+                }
+            },
+            addto() {
+                if(this.$parent.globalData.userInfo) {
+                    if(this.value1 && this.value2 && this.value3) {
+                        wepy.request({
+                            url: `${this.api_host}/restapi/active-user/create`,
+                            method: 'post',
+                            data: {
+                                active_id: this.id,
+                                name: this.value1,
+                                telephone: this.value2,
+                                remark: this.value3,
+                                open_id: wx.getStorageSync('openid')
+                            },
+                            success: (res) => {
+                                wx.navigateTo({url: `success?name=${this.name}&status=activity`})
+                                this.$apply()
+                            }
+                        })
+                    } else {
+                        wx.showToast({
+                            title: '请填写完整信息',
+                            image: '../images/fails.png',
+                            duration: 2000
+                        })
+                    }
+
+                } else {
+                    wx.showToast({
+                        title: '您还没有登录',
+                        image: '../images/fails.png',
+                        duration: 2000
+                    })
+                }
+
+
+            }
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            getExtJson.call(this)
+            this.id = option.id
+            this.name = option.name
+            wx.setNavigationBarTitle({
+                title: option.name
+            })
+            this.$apply()
+        }
+    }
+</script>

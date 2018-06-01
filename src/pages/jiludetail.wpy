@@ -1,0 +1,148 @@
+<style lang="scss">
+    .jilu{
+        font-size: 28rpx;
+        color: #333;
+        padding: 20rpx;
+        .block{
+            .title{
+                font-size: 30rpx;
+                color: #333;
+                margin-top: 40rpx;
+            }
+            .detal{
+                font-size: 28rpx;
+                color: #888;
+                line-height: 75rpx;
+            }
+            .urls{
+                display: flex;
+                flex-flow: row wrap;
+                margin-right: -10rpx;
+                margin-top: -10rpx;
+                image{
+                    width: 48.5%;
+                    height: 295rpx;
+                    margin-right: 10rpx;
+                    margin-top: 10rpx;
+                }
+            }
+            .funct{
+                display: flex;
+                font-size: 28rpx;
+                color: #888;
+                line-height: 38rpx;
+                margin: 15rpx 0;
+                padding-bottom: 10rpx;
+                position: relative;
+                view:nth-child(1){
+                    margin-right: 47rpx;
+                }
+                view:nth-child(2){
+                    position: absolute;
+                    right: 0;
+                }
+            }
+            .comment{
+                view{
+                    font-size: 30rpx;
+                    color: #333;
+                    line-height: 52rpx;
+                }
+            }
+            .say{
+                height: 70rpx;
+                width: 100%;
+                border-radius: 5rpx;
+                border: 1px solid #eee;
+                font-size: 30rpx;
+                line-height: 70rpx;
+                color: #333;
+                padding: 0 20rpx;
+                box-sizing: border-box;
+                margin-top: 20rpx;
+            }
+        }
+    }
+</style>
+<template>
+    <view class="jilu">
+        <view>
+            <repeat for="{{riji}}"  key="{{index}}">
+                <view class="block">
+                    <view class="title">{{item.nickname || '乔东'}}</view>
+                    <view class="detal">{{item.content}}</view>
+                    <view class="urls">
+                        <image wx:for="{{item.images}}" wx:for-item="ind" wx:key="{{index}}" src="{{ind.image}}"></image>
+                    </view>
+                    <view class="funct">
+                        <view @tap="comment">
+                            <icon type="pinglun" color="#7cbfb6" fontSize="38"></icon>
+                            评论
+                        </view>
+                        <view @tap="fabulous">
+                            <icon1 type="dianzan" color="#7cbfb6" fontSize="38"></icon1>
+                            {{item.zan}}
+                        </view>
+                    </view>
+                    <view class="comment">
+                        <view wx:for="{{item.comments}}" wx:for-item="com" wx:key="{{index}}">
+                            {{com.nickname || '乔东'}}：{{com.content}}
+                        </view>
+                    </view>
+                    <input class="say" type="text" placeholder="说点什么......" />
+                </view>
+            </repeat>
+        </view>
+
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+
+    export default class Jiludetail extends wepy.page {
+        config = {
+            navigationBarTitleText: '我的记录'
+        }
+        components = {
+            icon: Icon,
+            icon1: Icon,
+        }
+        data = {
+            riji: [
+                {
+                    nickname: '养花动态记录',
+                    content: '养花日记养花日记',
+                    images: [
+                        {
+                            image: '../images/jie.png'
+                        },
+                        {
+                            image: '../images/jie.png'
+                        }
+                    ],
+                    comments:[
+                        {
+                            nickname: '张三',
+                            content: '南京深京深圳哈京深圳哈京深圳哈京深圳哈京深圳哈京深圳哈圳哈瓦'
+                        },
+                        {
+                            nickname: '李四',
+                            content: '南京深圳哈瓦'
+                        },
+                    ],
+                    zan: 65
+                }
+            ]
+        }
+        methods = {
+
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            console.log(option)
+        }
+    }
+</script>

@@ -1,0 +1,60 @@
+<style lang="scss">
+    .videodetails{
+        color: #666;
+        font-size: 30rpx;
+        padding: 50rpx 20rpx 0 20rpx;
+        text{
+            color: #333;
+        }
+        view{
+            line-height: 50rpx;
+        }
+        video{
+            width: 100%;
+            margin-bottom: 20rpx;
+        }
+    }
+</style>
+<template>
+    <view class="videodetails">
+        <video id="myVideo"
+               src="{{video}}"
+               poster="{{img}}"
+               controls></video>
+
+        <view><text>视频名称：</text>{{name}}</view>
+        <view><text>视频简介：</text>{{ss}}</view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+
+    export default class VideoDetails extends wepy.page {
+
+        components = {
+
+        }
+        data = {
+            ss: '',
+            video: '',
+            name: '',
+            img: ''
+        }
+        methods = {
+
+        }
+        onShareAppMessage() {
+        }
+        onLoad(option) {
+            wx.setNavigationBarTitle({
+                title: option.name
+            })
+            this.img = option.img
+            this.ss = option.video_details
+            this.video = option.video
+            this.name = option.name
+            this.$apply()
+        }
+    }
+</script>

@@ -1,0 +1,146 @@
+
+<style lang="scss">
+    .returnz{
+        font-size: 28rpx;
+        color: #333;
+        .shopdetal{
+            background: #fefefe;
+            /*background: pink;*/
+            padding: 20rpx;
+            margin-bottom: -20rpx;
+            .goods{
+                background: white;
+                margin-bottom: 20rpx;
+                .goods_s{
+                    padding: 20rpx;
+                    display: flex;
+                    height: 180rpx;
+                    .img_bg{
+                        width: 245rpx;
+                        height: 100%;
+                        margin-right: 20rpx;
+                        background: no-repeat;
+                        background-position: center;
+                        background-size: cover ;
+                    }
+                    .goods-lois{
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                        color: #666;
+                    }
+                }
+            }
+            .del{
+                display: flex;
+                justify-content: space-between;
+                /*line-height: 75rpx;*/
+                padding: 20rpx;
+                border-top: 1px solid #eee;
+                view{
+                    text-align: center;
+                    font-size: 25rpx;
+                    color: #666;
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    .isse{
+                        margin-right: 10rpx;
+                    }
+                }
+                view:nth-child(1){
+                    border-right: 1px solid #ccc;
+                }
+
+            }
+        }
+    }
+</style>
+
+<template>
+    <view class="returnz">
+        <view class="shopdetal">
+            <view class="goods" wx:for="{{returnRecord}}" wx:key="{{index}}">
+                <view class="goods_s"
+                      @tap="goodsDetails"
+                      data-id="{{item.id}}"
+                      data-status="{{item.status}}"
+                      data-name="{{item.seedname}}">
+                    <view class="img_bg" style="background-image: url('{{item.image}}')"></view>
+                    <view class="goods-lois">
+                        <view>名称：{{item.seedname}}</view>
+                        <view>送出数量：{{item.quantity}}</view>
+                        <view>种类：{{item.seedkind}}</view>
+                        <view>有限期限：{{item.deadline}}</view>
+                    </view>
+                </view>
+                <view class="del" wx:if="{{!status}}">
+                    <view @tap="del" data-id="{{item.id}}">
+                        <icon1 class="isse" type="shanchu" fontSize="40" color="#999"></icon1>
+                        <text>{{status}}删除</text>
+                    </view>
+                    <view @tap="modify" data-id="{{item.id}}">
+                        <icon2 class="isse" type="icon_edit" fontSize="45" color="#999"></icon2>
+                        修改
+                    </view>
+                </view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+
+    export default class Returnz extends wepy.component{
+        data = {
+
+        }
+        components = {
+            icon1: Icon,
+            icon2: Icon
+        }
+        props = {
+            returnRecord: {
+                type: Array,
+                coerce: function (res){
+                    return res
+                }
+            },
+            status: {
+                type: String(),
+                coerce: function (res){
+                    return res
+                }
+            }
+        }
+        methods = {
+            /*
+            * 删除
+            * */
+            del(e) {
+                this.$emit('del', e)
+            },
+            /*
+            * 修改
+            * */
+            modify(e) {
+                this.$emit('modify', e)
+            },
+            /*
+            * 商品详情
+            * */
+            goodsDetails(e) {
+                this.$emit('goodsDetails', e)
+            }
+        }
+        onLoad() {
+
+        }
+
+    }
+</script>
+
+

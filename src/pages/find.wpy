@@ -1,0 +1,511 @@
+<style lang="scss">
+    @font-face {
+        font-family: "iconfont";
+        src: url(data:application/x-font-woff;charset=utf-8;base64,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) format('woff');
+    }
+
+    .iconfont {
+        font-family:"iconfont" !important;
+        font-size:16px;
+        font-style:normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .icon-shanchu:before { content: "\e7c8"; }
+
+    .icon-zhankai:before { content: "\e809"; }
+
+    .icon-geren:before { content: "\e7a3"; }
+
+    .icon-pinglun:before { content: "\e607"; }
+
+    .icon-zhaopianphoto177:before { content: "\e611"; }
+
+    .icon-5:before { content: "\e63c"; }
+
+    .icon-exchangejiaohuan:before { content: "\e6da"; }
+
+    .icon-emizhongzi:before { content: "\e64a"; }
+
+    .icon-fenxiang:before { content: "\e68e"; }
+
+    .icon-icon_edit:before { content: "\e610"; }
+
+    .icon-zhankai1:before { content: "\e608"; }
+
+    .icon-sousuo:before { content: "\e658"; }
+
+    .icon-gouwuche:before { content: "\e620"; }
+
+    .icon-pinglun1:before { content: "\e603"; }
+
+    .icon-dianzan:before { content: "\e69c"; }
+
+    .icon-chenggong:before { content: "\e605"; }
+
+    .icon-dizhi:before { content: "\e70f"; }
+
+    .icon-jia:before { content: "\e715"; }
+    .find{
+        border-top: 1px solid #eee;
+        padding: 56rpx 20rpx 20rpx 20rpx;
+        .nav{
+            display: flex;
+            padding: 0 40rpx;
+            justify-content: space-between;
+            font-size: 30rpx;
+            width: 100%;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99;
+            background: white;
+            view{
+                line-height: 65rpx;
+                color: #666;
+            }
+            .green{
+                border-bottom: 2px solid #17cb30;
+                color: #333;
+            }
+        }
+        .block{
+            border-bottom: 1px dashed #ccc;
+            /*border-bottom: 1px dashed #ddd;*/
+            /*box-shadow: 0 2px 2px #999;*/
+            /*padding-bottom: 10rpx;*/
+            .title{
+                font-size: 30rpx;
+                color: #333;
+                margin-top: 20rpx;
+            }
+            .detal{
+                font-size: 28rpx;
+                color: #888;
+                line-height: 75rpx;
+            }
+            .urls{
+                display: flex;
+                flex-flow: row wrap;
+                margin-right: -10rpx;
+                margin-top: -10rpx;
+                /*justify-content: space-between;*/
+                image{
+
+                }
+                .yi{
+                    width: 100%;
+                    height: 400rpx;
+                    margin-right: 10rpx;
+                    background: no-repeat;
+                    background-position: center;
+                    background-size: cover;
+                }
+                .er{
+                    width: 48.5%;
+                    height: 300rpx;
+                    margin-right: 10rpx;
+                    margin-top: 10rpx;
+                    background: no-repeat;
+                    background-position: center;
+                    background-size: cover;
+                }
+                .san{
+                    width: 31.9%;
+                    height: 200rpx;
+                    margin-top: 10rpx;
+                    background: no-repeat;
+                    background-position: center;
+                    background-size: cover ;
+                    margin-right: 10rpx;
+                }
+                /*.san:nth-child(3n+0){*/
+                    /*margin-right: 10rpx;*/
+                /*}*/
+            }
+            .funct{
+                .yesok{
+                    font-size:38rpx;
+                    color:#7cbfb6
+                }
+                .nono{
+                    font-size:38rpx;
+                    color:red
+                }
+                display: flex;
+                font-size: 28rpx;
+                color: #888;
+                line-height: 38rpx;
+                margin: 15rpx 0;
+                padding-bottom: 10rpx;
+                position: relative;
+                view:nth-child(1){
+                    margin-right: 47rpx;
+                }
+                view:nth-child(2){
+                    position: absolute;
+                    right: 0;
+
+                }
+            }
+            .comment{
+                background: rgba(150,150,150,.1);
+                margin-bottom: 20rpx;
+                view{
+                    font-size: 30rpx;
+                    color: #333;
+                    line-height: 52rpx;
+                }
+            }
+            .say{
+                width: 100%;
+                height: 300rpx;
+                border-radius: 5rpx;
+                border: 1px solid #eee;
+                font-size: 30rpx;
+                color: #333;
+                padding: 10rpx 20rpx;
+                margin-top: 20rpx;
+                box-sizing: border-box;
+                z-index: 9;
+            }
+        }
+        .jiaohuan{
+            display: flex;
+            justify-content: space-around;
+            margin-top: 100rpx;
+            view{
+
+                image{
+                    width: 277rpx;
+                    height: 277rpx;
+                }
+
+            }
+        }
+        .problom{
+            margin-top: 20rpx;
+            font-size: 33rpx;
+            color: #333;
+            .block{
+
+                border-bottom: 20rpx solid #eee;
+                padding-bottom: 30rpx;
+                .answer{
+                    font-size: 30rpx;
+                    color: #333;
+                    margin: 35rpx 0 10rpx 0;
+                }
+                .answer_d{
+                    font-size: 28rpx;
+                    color: #666;
+                    line-height: 35rpx;
+                }
+                .zhan{
+                    margin: 30rpx auto 0 auto;
+                    width: 135rpx;
+                    height: 50rpx;
+                    font-size: 28rpx;
+                    color: #666;
+                    line-height: 50rpx;
+                    border: 1px solid #eee;
+                    text-align: center;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-around;
+                }
+                .zhanss{
+                    height: 43rpx;
+                    overflow: hidden;
+                }
+            }
+        }
+    }
+</style>
+<template>
+    <view class="find">
+
+        <view class="nav">
+            <repeat for="{{tabnav}}" key="{{index}}">
+                <view @tap="tabNav"
+                      data-index="{{index}}"
+                      class="{{num == index ? 'green' : ''}}">{{item}}</view>
+            </repeat>
+        </view>
+        <repeat for="{{riji}}"  key="{{index}}" wx:if="{{num == 0}}">
+            <view class="block">
+                <view class="title">{{item.nickname}}</view>
+                <view class="detal">{{item.content}}</view>
+                <view class="urls" >
+                    <view class="{{item.images.length == 1 ? 'yi' : item.images.length == 2 ? 'er' : 'san'}}"
+                          wx:for="{{item.images}}"
+                          wx:for-item="ind"
+                          data-img="{{ind.image}}"
+                          data-srcurl="{{item.images}}"
+                          @tap="imgFix"
+                          wx:key="{{index}}"
+                          style="background-image: url('{{ind.image}}')"
+                    ></view>
+                </view>
+                <view class="funct">
+                    <view @tap="comment" data-index="{{index}}">
+                        <icon1 type="pinglun" color="#7cbfb6" fontSize="38"></icon1>
+                        评论
+                    </view>
+                    <view @tap="fabulous" data-id="{{item.id}}">
+                        <text class="iconfont icon-dianzan {{item.zan_status == 0 ? 'yesok' : 'nono'}}"></text>
+                        {{item.zan}}
+                    </view>
+                </view>
+                <view class="comment">
+                    <view wx:for="{{item.comments}}" wx:for-item="com" wx:key="{{index}}">
+                        {{com.nickname}}：{{com.content}}
+                    </view>
+                </view>
+                <textarea class="say"
+                          wx:if="{{statusArr[index]}}"
+                          data-id="{{item.id}}"
+                          cursor-spacing="100px"
+                          @input="bindTextAreaBlur"
+                          bindconfirm="inputOks"
+                          placeholder="说点什么......" />
+            </view>
+        </repeat>
+        <view wx:if="{{num == 1}}" key="{{index}}" class="jiaohuan">
+            <view @tap="give">
+                <image src="../images/give.png"></image>
+            </view>
+            <view @tap="claim">
+                <image src="../images/claim.png"></image>
+            </view>
+        </view>
+        <view wx:if="{{num == 2}}" class="problom">
+            <repeat for="{{problom}}" key="{{index}}">
+                <view class="block">
+                    <view class="title">{{item.question}}</view>
+                    <view class="answer">官方解答：</view>
+                    <view class="{{zhankai[index] ? 'zhans' : 'zhanss' }}">
+                        <text class="answer_d">{{item.answer.length}}{{item.answer}}</text>
+                    </view>
+                    <view class="zhan" @tap="zhankai" data-status="{{zhankai[index]}}" data-index="{{index}}">
+                        {{zhankai[index] ? '收起' : '展开'}}
+                        <icon4 type="zhankai1" color="#999" fontSize="38"></icon4>
+                    </view>
+                </view>
+            </repeat>
+        </view>
+
+    </view>
+</template>
+
+<script>
+    import wepy from 'wepy'
+    import Icon from '../components/Icon'
+    import getExtJson from '../mixins/getExtJson'
+
+    export default class Find extends wepy.page {
+        config = {
+            navigationBarTitleText: '发现'
+        }
+        components = {
+            icon1: Icon,
+            icon2: Icon,
+            icon3: Icon,
+            icon4: Icon,
+        }
+        data = {
+            statusArr: [],
+            zhankaistatus: '展开',
+            zhankai: [],
+            tabnav: [
+                '养花日记', '交换', '新手指南'
+            ],
+            num: 1,
+            problom: [],
+            riji: [],
+            srcimg: ''
+        }
+        methods = {
+
+            imgFix(e) {
+                let srcurl = []
+                e.currentTarget.dataset.srcurl.forEach( item => {
+                    srcurl.push(item.image)
+                })
+                wx.previewImage({
+                    current: e.currentTarget.dataset.img, // 当前显示图片的http链接
+                    urls: srcurl // 需要预览的图片http链接列表
+                })
+                this.$apply()
+            },
+
+            bindTextAreaBlur(e) {
+//                console.log(e.detail.value)
+            },
+            inputOks(e) {
+                if(this.$parent.globalData.userInfo) {
+                    wepy.request({
+                        url: `${this.api_host}/restapi/comment/create`,
+                        data: {
+                            topical_id: e.currentTarget.dataset.id,
+                            openid: wx.getStorageSync('openid'),
+                            content: e.detail.value
+                        },
+                        method: 'post',
+                        success: (res) => {
+                            this.statusArr = []
+                            this.riji.forEach( item => {
+                                if(item.id == e.currentTarget.dataset.id) {
+                                    item.comments.push(res.data.data)
+                                }
+                            })
+                            this.$apply()
+                        }
+                    })
+                } else {
+                    wx.showToast({
+                        title: '您还没有登录',
+                        image: '../images/fails.png',
+                        duration: 2000
+                    })
+                }
+            },
+            zhankai(e) {
+                let index = e.currentTarget.dataset.index
+                let status = e.currentTarget.dataset.status
+                this.zhankai = []
+                this.zhankai[index] = true
+                if(status) {
+                    this.zhankai = []
+                }
+                this.$apply()
+            },
+            /*
+            * 切换
+            * */
+            tabNav(e) {
+                this.num = this.$parent.globalData.num = e.currentTarget.dataset.index
+                if(this.num == 0) {
+                    wepy.request({
+                        url: `${this.api_host}/restapi/topical?expand=images`,
+                        data: {
+                            openid: wx.getStorageSync('openid'),
+                        },
+                        success: (res) => {
+                            this.riji = res.data.data.items
+                            this.$apply()
+                        }
+                    })
+                }
+                if(this.num == 2) {
+                    wepy.request({
+                        url: `${this.api_host}/restapi/answer`,
+                        data: {},
+                        success: (res) => {
+                            this.problom = res.data.data.items
+                            this.$apply()
+                        }
+                    })
+                }
+                this.$apply()
+            },
+            /*
+            * 评论
+            * */
+            comment(e) {
+                let index = e.currentTarget.dataset.index
+                if(this.statusArr[index]) {
+                    this.statusArr[index] = false
+                } else {
+                    this.statusArr = []
+                    this.statusArr[index] = true
+                }
+
+                this.$apply()
+            },
+            /*
+            * 点赞
+            * */
+            fabulous(e) {
+                if(this.$parent.globalData.userInfo) {
+                    this.riji.forEach( item => {
+                        if(item.id === e.currentTarget.dataset.id) {
+                            if(item.zan_status === 0) {
+                                item.zan_status = 1
+                                item.zan ++
+                                wepy.request({
+                                    url: `${this.api_host}/restapi/zan/create`,
+                                    data: {
+                                        id: e.currentTarget.dataset.id,
+                                        openid: wx.getStorageSync('openid'),
+                                    },
+                                    method: 'post',
+                                    success: (res) => {
+                                        this.$apply()
+                                    }
+                                })
+                            } else {
+                                wx.showToast({
+                                    title: '您已点过赞',
+                                    image: '../images/fails.png',
+                                    duration: 2000
+                                })
+                            }
+
+                        }
+                    })
+                } else {
+                    wx.showToast({
+                        title: '您还没有登录',
+                        image: '../images/fails.png',
+                        duration: 2000
+                    })
+                }
+            },
+            /*
+            * 赠送
+            * */
+            give() {
+                wx.navigateTo({url: `give?name=赠送`})
+            },
+            /*
+            * 索要
+            * */
+            claim() {
+                wx.navigateTo({url: `give?name=索要`})
+            }
+        }
+        onShareAppMessage() {
+        }
+        onShow() {
+            this.statusArr = []
+            if(this.num == 0) {
+                wepy.request({
+                    url: `${this.api_host}/restapi/topical?expand=images`,
+                    data: {
+                        openid: wx.getStorageSync('openid'),
+                    },
+                    success: (res) => {
+                        this.riji = res.data.data.items
+                        this.$apply()
+                    }
+                })
+            }
+            if(this.num == 2) {
+                wepy.request({
+                    url: `${this.api_host}/restapi/answer`,
+                    data: {},
+                    success: (res) => {
+                        this.problom = res.data.data.items
+                        this.$apply()
+                    }
+                })
+            }
+            getExtJson.call(this)
+            this.num = this.$parent.globalData.num
+            this.$apply()
+        }
+    }
+</script>
